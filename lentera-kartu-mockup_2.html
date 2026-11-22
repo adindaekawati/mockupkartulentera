@@ -1,0 +1,1988 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>LENTERA · Kartu Dompet Siaga — Mockup Produk 3D</title>
+<style>
+/* ============================================================
+   LENTERA · Kartu Dompet Siaga — mockup produk 3D (satu berkas)
+   Prototipe konseptual, bukan produk resmi Bank Indonesia.
+   Bagian 1: TOKEN & SISTEM DESAIN
+   ============================================================ */
+:root{
+  /* warna merek (dominan) */
+  --brand-50:#E3F2FD; --brand-100:#BBDEFB; --brand-200:#90CAF9;
+  --brand-300:#64B5F6; --brand-400:#42A5F5;
+  /* fungsional */
+  --ink-900:#0B2A55; --ink-600:#3C5A8A; --white:#FFFFFF;
+  --accent-deep:#1565C0; --accent-darker:#0D47A1;
+  --ok:#2E9E6B; --ok-text:#1E7F52;
+  --warn:#F29D38; --warn-text:#8A5200; --warn-tint:#FFF3E0;
+  --danger:#D93036; --danger-text:#B3202A;
+  /* material fisik (hanya benda, bukan antarmuka) */
+  --mat-chip:#D9B45A; --mat-chip-edge:#B8923A; --mat-copper:#C77D3A;
+  --mat-pvc:#F7FAFF; --mat-clear:rgba(255,255,255,.55);
+  /* bentuk */
+  --r-panel:20px; --r-btn:14px; --r-pill:999px;
+  --line:1px solid rgba(144,202,249,.5);
+  --shadow:0 8px 24px rgba(66,165,245,.18);
+  --font-scale:1;
+  --fs:calc(16px * var(--font-scale));
+  --sans:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"SF Mono",Consolas,monospace;
+  /* nilai dinamis dari JS */
+  --shadeFront:1; --shadeBack:1; --shadeEdge:.9;
+  --glossAng:120deg; --glossOp:.3;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--sans); font-size:var(--fs); line-height:1.5;
+  color:var(--ink-900); background:var(--brand-50);
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+body::before{ /* latar gradasi lembut */
+  content:""; position:fixed; inset:0; z-index:-2;
+  background:linear-gradient(170deg,#E3F2FD 0%,#F3F9FF 45%,#FFFFFF 100%);
+}
+#waves{position:fixed; left:0; right:0; bottom:0; z-index:-1; opacity:.5; pointer-events:none}
+h1,h2,h3,p,ul,ol{margin:0}
+button{font:inherit; color:inherit}
+:focus-visible{outline:3px solid var(--accent-deep); outline-offset:2px; border-radius:6px}
+
+/* ---------- komponen dasar ---------- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  min-height:44px; padding:0 14px; border-radius:var(--r-btn);
+  border:1px solid rgba(21,101,192,.28); background:var(--white); color:var(--ink-900);
+  font-size:calc(14px*var(--font-scale)); font-weight:700; cursor:pointer;
+  transition:background .15s,border-color .15s,transform .08s;
+}
+.btn:hover{background:var(--brand-50); border-color:var(--accent-deep)}
+.btn:active{transform:translateY(1px)}
+.btn[aria-pressed="true"],.btn.is-on{background:var(--accent-deep); color:var(--white); border-color:var(--accent-deep)}
+.btn[aria-pressed="true"] svg,.btn.is-on svg{stroke:var(--white)}
+.btn.primary{background:var(--accent-deep); color:var(--white); border-color:var(--accent-deep)}
+.btn.primary:hover{background:var(--accent-darker)}
+.btn.primary svg{stroke:var(--white)}
+.btn.sm{min-height:36px; padding:0 10px; font-size:calc(13px*var(--font-scale)); border-radius:10px}
+.btn.icon{min-width:44px; padding:0 8px}
+.btn[disabled]{opacity:.45; cursor:not-allowed}
+.seg{display:inline-flex; background:var(--white); border:var(--line); border-radius:var(--r-pill); padding:4px; gap:4px; flex-wrap:wrap}
+.seg .btn{border:none; border-radius:var(--r-pill); min-height:38px}
+.panel{background:var(--white); border:var(--line); border-radius:var(--r-panel); box-shadow:var(--shadow)}
+.pill{display:inline-flex; align-items:center; gap:6px; border-radius:var(--r-pill);
+  padding:4px 12px; font-size:calc(12px*var(--font-scale)); font-weight:700;
+  background:var(--brand-100); color:var(--ink-900)}
+.pill.warnp{background:var(--warn-tint); color:var(--warn-text)}
+.pill.okp{background:#E3F6EC; color:var(--ok-text)}
+.pill.dangerp{background:#FDE7E8; color:var(--danger-text)}
+.sw{display:flex; align-items:center; gap:8px; min-height:44px; cursor:pointer; user-select:none;
+  font-size:calc(13px*var(--font-scale)); font-weight:700}
+.sw input{position:absolute; opacity:0; width:0; height:0}
+.sw .track{width:42px; height:24px; border-radius:999px; background:var(--brand-200); position:relative; flex:none; transition:background .18s}
+.sw .track::after{content:""; position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%;
+  background:var(--white); transition:transform .18s; box-shadow:0 1px 3px rgba(11,42,85,.3)}
+.sw input:checked + .track{background:var(--accent-deep)}
+.sw input:checked + .track::after{transform:translateX(18px)}
+.sw input:focus-visible + .track{outline:3px solid var(--accent-deep); outline-offset:2px}
+.sl{display:flex; flex-direction:column; gap:2px; min-width:132px}
+.sl label{font-size:calc(12px*var(--font-scale)); font-weight:700; color:var(--ink-600);
+  display:flex; justify-content:space-between; gap:8px}
+.sl output{font-variant-numeric:tabular-nums; color:var(--ink-900)}
+input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:24px; background:transparent; cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:6px; border-radius:3px; background:var(--brand-200)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:20px; height:20px; border-radius:50%;
+  background:var(--accent-deep); margin-top:-7px; border:2px solid var(--white); box-shadow:0 1px 4px rgba(11,42,85,.35)}
+input[type=range]::-moz-range-track{height:6px; border-radius:3px; background:var(--brand-200)}
+input[type=range]::-moz-range-thumb{width:20px; height:20px; border:2px solid var(--white); border-radius:50%; background:var(--accent-deep)}
+input[type=text],input[type=number]{min-height:44px; padding:0 12px; border-radius:12px; border:1px solid rgba(21,101,192,.3);
+  font:inherit; color:var(--ink-900); background:var(--white); width:100%}
+svg.ic{stroke:var(--ink-900); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; fill:none; flex:none}
+
+/* ---------- tata letak ---------- */
+.wrap{max-width:1680px; margin:0 auto; padding:16px 18px 40px}
+header.top{display:flex; flex-wrap:wrap; align-items:center; gap:12px 16px; margin-bottom:14px}
+.brandmark{display:flex; align-items:center; gap:10px}
+.brandmark h1{font-size:calc(22px*var(--font-scale)); line-height:1.25; font-weight:800; letter-spacing:-.01em}
+.brandmark .sub{font-size:calc(13px*var(--font-scale)); color:var(--ink-600); font-weight:600}
+.grid{display:grid; grid-template-columns:300px minmax(0,1fr) 340px; gap:16px; align-items:start}
+body.tanpaKiri .grid{grid-template-columns:minmax(0,1fr) 340px}
+body.tanpaKiri .col.left{display:none}
+.col{display:flex; flex-direction:column; gap:14px; min-width:0}
+.pad{padding:14px 16px}
+.panel h2{font-size:calc(18px*var(--font-scale)); font-weight:700; margin-bottom:8px}
+.panel h3{font-size:calc(15px*var(--font-scale)); font-weight:700}
+.cap{font-size:calc(13px*var(--font-scale)); color:var(--ink-600); line-height:1.45}
+
+/* ---------- panggung 3D ---------- */
+#stage{
+  position:relative; width:100%; min-height:560px; height:clamp(560px,64vh,760px);
+  border-radius:var(--r-panel); overflow:hidden; background:
+    radial-gradient(120% 90% at 50% 10%,#FFFFFF 0%,#EAF4FE 55%,#D6EAFC 100%);
+  border:var(--line); box-shadow:var(--shadow);
+  -webkit-perspective:1400px; perspective:1400px;
+  -webkit-perspective-origin:50% 40%; perspective-origin:50% 40%;
+  touch-action:none; contain:layout; cursor:grab;
+}
+#stage.dragging{cursor:grabbing}
+#stage:focus-visible{outline:3px solid var(--accent-deep); outline-offset:-3px}
+#world{position:absolute; inset:0; -webkit-transform-style:preserve-3d; transform-style:preserve-3d}
+#card3d{
+  position:absolute; left:50%; top:50%; width:0; height:0;
+  -webkit-transform-style:preserve-3d; transform-style:preserve-3d;
+  will-change:transform;
+}
+.layer{position:absolute; left:0; top:0; width:0; height:0;
+  -webkit-transform-style:preserve-3d; transform-style:preserve-3d}
+.layer.hidden{display:none}
+.layer.dim{opacity:.25}
+.layer.hi .slice{filter:brightness(1.12) saturate(1.15)}
+.slice,.plane{
+  position:absolute; left:0; top:0;
+  width:var(--cw); height:var(--ch); margin-left:calc(var(--cw)/-2); margin-top:calc(var(--ch)/-2);
+  -webkit-clip-path:var(--clip); clip-path:var(--clip);
+  -webkit-backface-visibility:visible; backface-visibility:visible;
+}
+.slice{filter:brightness(var(--shadeEdge))}
+.plane{-webkit-backface-visibility:hidden; backface-visibility:hidden}
+.plane svg{display:block; width:100%; height:100%}
+.plane.front{filter:brightness(var(--shadeFront))}
+.plane.back{filter:brightness(var(--shadeBack))}
+.gloss{position:absolute; left:0; top:0; width:var(--cw); height:var(--ch);
+  margin-left:calc(var(--cw)/-2); margin-top:calc(var(--ch)/-2);
+  -webkit-clip-path:var(--clip); clip-path:var(--clip); pointer-events:none;
+  background:linear-gradient(var(--glossAng),rgba(255,255,255,0) 32%,rgba(255,255,255,var(--glossOp)) 50%,rgba(255,255,255,0) 68%);
+}
+.rimb{position:absolute; left:0; top:0; margin-left:calc(var(--cw)/-2 + var(--crad));
+  border-radius:2px; pointer-events:none; filter:brightness(var(--shadeEdge))}
+.emboss{position:absolute; left:0; top:0; width:var(--cw); height:var(--ch);
+  margin-left:calc(var(--cw)/-2); margin-top:calc(var(--ch)/-2); pointer-events:none}
+.emboss i{position:absolute; width:13px; height:13px; border-radius:50%;
+  background:radial-gradient(circle at 34% 30%,#ffffff 0%,#DCE4EE 45%,#8FA3B8 100%);
+  box-shadow:0 1px 2px rgba(11,42,85,.35)}
+#floor{position:absolute; left:50%; top:50%; width:460px; height:120px;
+  border-radius:50%; background:radial-gradient(closest-side,rgba(11,42,85,.30),rgba(11,42,85,0) 72%);
+  pointer-events:none; transition:opacity .2s}
+#blocked{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) rotate(-14deg);
+  border:5px solid var(--danger); color:var(--danger); font-weight:800; letter-spacing:.14em;
+  padding:8px 22px; border-radius:10px; font-size:30px; display:none; pointer-events:none;
+  background:rgba(255,255,255,.72)}
+#stage.isBlocked #blocked{display:block}
+#stage.isBlocked #card3d{filter:grayscale(.85) brightness(.92)}
+#stage.inactive #card3d{opacity:.45}
+
+/* hotspot & overlay */
+#hotspots,#dimlayer,#fx{position:absolute; inset:0; pointer-events:none}
+#hotspots{z-index:5}
+.hs{position:absolute; left:0; top:0; width:44px; height:44px; margin:-22px 0 0 -22px;
+  display:grid; place-items:center; background:none; border:none; padding:0; cursor:pointer;
+  pointer-events:auto; transition:opacity .15s}
+.hs b{width:28px; height:28px; border-radius:50%; display:grid; place-items:center;
+  background:var(--accent-deep); color:#fff; font-size:13px; font-weight:800;
+  box-shadow:0 2px 8px rgba(11,42,85,.4); border:2px solid #fff}
+.hs.inner b{background:var(--mat-copper)}
+.hs.rear b{background:var(--ink-900)}
+.hs.off{opacity:0; pointer-events:none}
+.hs.sel b{animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(21,101,192,.55)}50%{box-shadow:0 0 0 10px rgba(21,101,192,0)}}
+#hint{position:absolute; left:50%; bottom:12px; max-width:88%; font-size:calc(12.5px*var(--font-scale)); transform:translateX(-50%); z-index:7;
+  background:var(--ink-900); color:#fff; padding:9px 14px; border-radius:var(--r-pill);
+  font-size:calc(13px*var(--font-scale)); font-weight:600; max-width:92%; text-align:center;
+  box-shadow:0 6px 18px rgba(11,42,85,.35); transition:opacity .3s}
+#scalehint{position:absolute; left:12px; top:12px; z-index:6}
+#viewname{position:absolute; right:12px; top:12px; z-index:6}
+
+/* ---------- daftar komponen (kiri) ---------- */
+.lyrow{display:flex; align-items:center; gap:8px; padding:6px 4px; border-radius:10px}
+.lyrow:hover{background:var(--brand-50)}
+.lyrow.sel{background:var(--brand-100)}
+.lyrow .nm{flex:1; min-width:0; text-align:left; background:none; border:none; cursor:pointer;
+  font-size:calc(13px*var(--font-scale)); font-weight:700; padding:6px 2px; line-height:1.3}
+.lyrow .nm small{display:block; font-weight:500; color:var(--ink-600); font-size:calc(11.5px*var(--font-scale))}
+.swatch{width:12px; height:12px; border-radius:3px; border:1px solid rgba(11,42,85,.25); flex:none}
+.eye{min-width:36px; min-height:36px; border-radius:10px; border:1px solid transparent; background:none; cursor:pointer; display:grid; place-items:center}
+.eye:hover{background:var(--white); border-color:rgba(21,101,192,.3)}
+.clist{display:flex; flex-direction:column; gap:2px; max-height:300px; overflow:auto}
+.citem{display:flex; gap:8px; align-items:flex-start; text-align:left; width:100%; background:none;
+  border:1px solid transparent; border-radius:12px; padding:8px; cursor:pointer}
+.citem:hover{background:var(--brand-50); border-color:rgba(21,101,192,.25)}
+.citem.sel{background:var(--brand-100); border-color:var(--accent-deep)}
+.citem .num{flex:none; width:24px; height:24px; border-radius:50%; background:var(--accent-deep); color:#fff;
+  font-size:12px; font-weight:800; display:grid; place-items:center}
+.citem .tx{min-width:0}
+.citem .tx b{display:block; font-size:calc(13.5px*var(--font-scale)); line-height:1.3}
+.citem .tx small{color:var(--ink-600); font-size:calc(11.5px*var(--font-scale))}
+
+/* ---------- bar kontrol ---------- */
+#controls{display:flex; flex-direction:column; gap:10px; padding:12px 14px}
+.ctrow{display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center}
+.ctrow.scrollx{flex-wrap:nowrap; overflow-x:auto; padding-bottom:4px; scrollbar-width:thin}
+.sep{width:1px; height:28px; background:rgba(144,202,249,.7); flex:none}
+
+/* ---------- panel info kanan ---------- */
+.tabs{display:flex; gap:4px; flex-wrap:wrap; border-bottom:var(--line); padding-bottom:8px; margin-bottom:10px}
+.tab{min-height:36px; padding:0 9px; border-radius:10px; border:1px solid transparent; background:none;
+  font-size:calc(12.5px*var(--font-scale)); font-weight:700; cursor:pointer; white-space:nowrap}
+.tab:hover{background:var(--brand-50)}
+.tab[aria-selected="true"]{background:var(--accent-deep); color:#fff}
+.src{display:inline-block; font-size:calc(11px*var(--font-scale)); font-weight:800; padding:2px 8px;
+  border-radius:var(--r-pill); background:var(--brand-100); color:var(--ink-900)}
+.src.asum{background:var(--warn-tint); color:var(--warn-text)}
+.src.sim{background:#EDE7F6; color:#4527A0}
+.kv{display:grid; grid-template-columns:1fr auto; gap:4px 10px; font-size:calc(13.5px*var(--font-scale))}
+.kv dt{color:var(--ink-600)}
+.kv dd{margin:0; font-weight:700; text-align:right; font-variant-numeric:tabular-nums}
+table.spec{width:100%; border-collapse:collapse; font-size:calc(12.5px*var(--font-scale))}
+table.spec th,table.spec td{text-align:left; padding:6px 6px; border-bottom:1px solid rgba(144,202,249,.45); vertical-align:top}
+table.spec th{color:var(--ink-600); font-weight:700; width:44%}
+.box{border:var(--line); border-radius:14px; padding:10px 12px; background:var(--brand-50)}
+.box.warnb{background:var(--warn-tint); border-color:rgba(242,157,56,.5)}
+.box.okb{background:#E8F7EF; border-color:rgba(46,158,107,.45)}
+.box.dangerb{background:#FDE7E8; border-color:rgba(217,48,54,.4)}
+.steps{display:flex; flex-direction:column; gap:8px}
+.step{display:flex; gap:10px; align-items:flex-start; padding:10px; border-radius:14px; border:var(--line); background:var(--white)}
+.step.on{border-color:var(--accent-deep); background:var(--brand-50)}
+.step .n{flex:none; width:26px; height:26px; border-radius:50%; background:var(--brand-200); color:var(--ink-900);
+  display:grid; place-items:center; font-weight:800; font-size:13px}
+.step.on .n{background:var(--accent-deep); color:#fff}
+.keypad{display:grid; grid-template-columns:repeat(3,1fr); gap:6px; max-width:230px}
+.keypad .btn{min-height:46px}
+ol.asum{padding-left:18px; display:flex; flex-direction:column; gap:6px; font-size:calc(13px*var(--font-scale))}
+
+/* ---------- toast, modal ---------- */
+#toasts{position:fixed; left:50%; bottom:20px; transform:translateX(-50%); z-index:60;
+  display:flex; flex-direction:column; gap:8px; align-items:center; pointer-events:none}
+.toast{background:var(--ink-900); color:#fff; padding:10px 16px; border-radius:var(--r-pill);
+  font-size:calc(13.5px*var(--font-scale)); font-weight:600; box-shadow:0 8px 22px rgba(11,42,85,.4); max-width:90vw}
+.toast.ok{background:var(--ok-text)} .toast.bad{background:var(--danger-text)}
+.modal{position:fixed; inset:0; z-index:70; display:none; align-items:center; justify-content:center;
+  background:rgba(11,42,85,.45); padding:16px}
+.modal.open{display:flex}
+.modal .sheet{background:#fff; border-radius:var(--r-panel); max-width:min(1150px,96vw); max-height:92vh;
+  overflow:auto; box-shadow:0 20px 50px rgba(11,42,85,.4); padding:16px 18px; width:100%}
+.modal .mh{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px}
+#readcard{overflow:auto; background:var(--brand-50); border-radius:14px; padding:12px}
+#readcard .inner{width:1180px; max-width:none}
+#readcard svg{display:block; width:100%; height:auto; border-radius:22px; box-shadow:0 10px 30px rgba(11,42,85,.25)}
+.testtbl{width:100%; border-collapse:collapse; font-size:13px}
+.testtbl td{padding:5px 8px; border-bottom:1px solid #E3F2FD; vertical-align:top}
+.testtbl .p{color:var(--ok-text); font-weight:800} .testtbl .f{color:var(--danger-text); font-weight:800}
+
+/* ---------- footer ---------- */
+footer.ft{margin-top:18px; display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center;
+  font-size:calc(12.5px*var(--font-scale)); color:var(--ink-600)}
+
+/* ---------- kontras tinggi ---------- */
+body.hc{--ink-600:#0B2A55; --line:1.5px solid #0B2A55; --shadow:none}
+body.hc .panel,body.hc .btn{border:1.5px solid var(--ink-900)}
+body.hc #stage{background:#fff}
+body.hc .cap{color:var(--ink-900)}
+
+/* ---------- responsif ---------- */
+@media (max-width:1099px){
+  .grid,body.tanpaKiri .grid{grid-template-columns:1fr}
+  .col.left,.col.right{order:3}
+  .col.mid{order:1}
+  #stage{height:48vh; min-height:340px}
+  .ctrow{flex-wrap:nowrap; overflow-x:auto; padding-bottom:6px}
+  .sheetdrawer{position:relative}
+  .drawer-handle{display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
+    min-height:44px; background:none; border:none; cursor:pointer; font-weight:800}
+  .drawer-handle::before{content:""; width:38px; height:4px; border-radius:2px; background:var(--brand-200)}
+  .drawer-body.collapsed{display:none}
+}
+@media (min-width:1100px){ .drawer-handle{display:none} .ctrow.scrollx{flex-wrap:wrap; overflow:visible} }
+
+/* ---------- gerakan ---------- */
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important}
+}
+
+/* ---------- cetak ---------- */
+@media print{
+  body{background:#fff}
+  .noprint,#stage,#controls,.col.left,footer.ft,#toasts,.modal{display:none !important}
+  .grid{display:block}
+  .panel{box-shadow:none; border:1px solid #999; page-break-inside:avoid; margin-bottom:10px}
+  #printArea{display:block !important}
+}
+#printArea{display:none}
+</style>
+</head>
+<body>
+<svg id="waves" viewBox="0 0 1440 220" preserveAspectRatio="none" aria-hidden="true" height="200">
+  <path d="M0,120 C240,60 420,180 720,130 C1020,80 1200,170 1440,110 L1440,220 L0,220Z" fill="#BBDEFB" opacity=".35"/>
+  <path d="M0,160 C260,110 480,200 760,160 C1040,120 1240,195 1440,155 L1440,220 L0,220Z" fill="#90CAF9" opacity=".28"/>
+</svg>
+
+<div class="wrap">
+<header class="top">
+  <div class="brandmark">
+    <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true" class="ic">
+      <path d="M20 4v4M13 10h14l-2 14H15z"/><path d="M11 30h18M20 24v6"/>
+      <path d="M20 13c2.6 2.7 3.8 4.6 3.8 6.1A3.8 3.8 0 0 1 20 23a3.8 3.8 0 0 1-3.8-3.9c0-1.5 1.2-3.4 3.8-6.1z" fill="#42A5F5" stroke="#1565C0"/>
+    </svg>
+    <div>
+      <h1>LENTERA · Kartu Dompet Siaga</h1>
+      <div class="sub">Kartu Rupiah Digital berbasis NIK · mockup produk 3D yang bisa diputar dan dibongkar</div>
+    </div>
+  </div>
+  <span class="pill warnp" id="protoBadge">PROTOTIPE KONSEPTUAL</span>
+  <div style="flex:1 1 20px"></div>
+  <div class="seg" role="group" aria-label="Pilih varian kartu">
+    <button class="btn sm" data-action="varian" data-v="A" aria-pressed="true">A · Kartu Warga</button>
+    <button class="btn sm" data-action="varian" data-v="B" aria-pressed="false">B · Kontras Tinggi</button>
+    <button class="btn sm" data-action="varian" data-v="C" aria-pressed="false">C · Siaga Sementara</button>
+  </div>
+</header>
+
+<div class="grid">
+
+  <!-- ============ KIRI: KOMPONEN & LAPISAN ============ -->
+  <div class="col left">
+    <section class="panel pad sheetdrawer">
+      <button class="drawer-handle" data-action="drawer" data-t="lyr">Lapisan kartu</button>
+      <div class="drawer-body" id="d-lyr">
+        <h2>Lapisan kartu</h2>
+        <p class="cap" style="margin-bottom:8px">Tujuh lapisan setebal 0,76 mm. Klik nama untuk menyorot, klik mata untuk menyembunyikan.</p>
+        <div id="layerList"></div>
+        <div class="ctrow" style="margin-top:8px">
+          <button class="btn sm" data-action="layersAll">Tampilkan semua</button>
+          <button class="btn sm" data-action="soloOff">Batal solo</button>
+        </div>
+      </div>
+    </section>
+    <section class="panel pad sheetdrawer">
+      <button class="drawer-handle" data-action="drawer" data-t="cmp">Komponen kartu</button>
+      <div class="drawer-body" id="d-cmp">
+        <h2>Komponen kartu</h2>
+        <p class="cap" style="margin-bottom:8px">C1–C15. Klik untuk membaca fungsinya; kartu otomatis diputar ke sisi yang tepat.</p>
+        <div class="clist" id="compList"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ TENGAH: PANGGUNG 3D ============ -->
+  <div class="col mid">
+    <div id="stage" tabindex="0" role="application"
+      aria-label="Panggung tiga dimensi kartu LENTERA. Seret untuk memutar, roda tetikus untuk memperbesar, tombol panah untuk memutar 5 derajat, angka 1 sampai 8 untuk pindah tampilan, spasi untuk membongkar kartu, huruf R untuk reset.">
+      <div id="floor"></div>
+      <div id="world"><div id="card3d"></div></div>
+      <div id="fx"></div>
+      <div id="dimlayer"></div>
+      <div id="hotspots"></div>
+      <div id="blocked">DIBLOKIR</div>
+      <span class="pill" id="scalehint">Tebal diperbesar 6×</span>
+      <span class="pill" id="viewname">Tampilan 3/4</span>
+      <div id="hint" hidden>Seret untuk memutar · Ketuk titik bernomor · Tekan Bongkar untuk melihat isi</div>
+    </div>
+    <p class="sr-live cap" id="a11ySummary" aria-live="polite" style="min-height:1.4em"></p>
+
+    <section class="panel" id="controls">
+      <div class="ctrow scrollx" role="group" aria-label="Tampilan kartu">
+        <button class="btn sm" data-action="view" data-v="depan">Depan</button>
+        <button class="btn sm" data-action="view" data-v="belakang">Belakang</button>
+        <button class="btn sm" data-action="view" data-v="kiri">Kiri</button>
+        <button class="btn sm" data-action="view" data-v="kanan">Kanan</button>
+        <button class="btn sm" data-action="view" data-v="atas">Atas</button>
+        <button class="btn sm" data-action="view" data-v="bawah">Bawah</button>
+        <button class="btn sm" data-action="view" data-v="tigaempat">3/4</button>
+        <span class="sep"></span>
+        <button class="btn sm" data-action="toggleBongkar" id="btnBongkar">Bongkar</button>
+        <button class="btn sm" data-action="penampang" id="btnPenampang">Penampang</button>
+        <button class="btn sm" data-action="baca">Mode Baca</button>
+        <button class="btn sm" data-action="kiri" aria-pressed="false">Lapisan kartu</button>
+      </div>
+      <div class="ctrow">
+        <div class="sl"><label for="sBongkar">Bongkar <output id="oBongkar">0%</output></label>
+          <input type="range" id="sBongkar" min="0" max="100" value="0" step="1"></div>
+        <div class="sl"><label for="sTebal">Ketebalan <output id="oTebal">6×</output></label>
+          <input type="range" id="sTebal" min="1" max="12" value="6" step="1"></div>
+        <div class="sl"><label for="sZoom">Zoom <output id="oZoom">1,00×</output></label>
+          <input type="range" id="sZoom" min="60" max="220" value="100" step="1"></div>
+        <div class="sl"><label for="sCahaya">Cahaya <output id="oCahaya">50%</output></label>
+          <input type="range" id="sCahaya" min="0" max="100" value="50" step="1"></div>
+      </div>
+      <div class="ctrow">
+        <label class="sw"><input type="checkbox" id="cHot" checked><span class="track"></span>Hotspot</label>
+        <label class="sw"><input type="checkbox" id="cDim"><span class="track"></span>Dimensi</label>
+        <label class="sw"><input type="checkbox" id="cAuto"><span class="track"></span>Rotasi otomatis</label>
+        <label class="sw"><input type="checkbox" id="cSuara"><span class="track"></span>Suara</label>
+        <span class="sep"></span>
+        <button class="btn sm" data-action="font">Ukuran huruf: Normal</button>
+        <button class="btn sm" data-action="hc" aria-pressed="false">Kontras tinggi</button>
+        <button class="btn sm" data-action="reset">Reset</button>
+      </div>
+    </section>
+    <section class="panel pad" id="xsecPanel" hidden>
+      <div class="ctrow" style="justify-content:space-between">
+        <h2>Penampang melintang kartu</h2>
+        <button class="btn sm" data-action="penampangTutup">Tutup penampang</button>
+      </div>
+      <div id="xsec"></div>
+    </section>
+  </div>
+
+  <!-- ============ KANAN: PANEL INFO ============ -->
+  <div class="col right">
+    <section class="panel pad sheetdrawer">
+      <button class="drawer-handle" data-action="drawer" data-t="inf">Panel informasi</button>
+      <div class="drawer-body" id="d-inf">
+        <div class="tabs" role="tablist" aria-label="Panel informasi">
+          <button class="tab" role="tab" data-action="tab" data-t="komponen" aria-selected="true">Komponen</button>
+          <button class="tab" role="tab" data-action="tab" data-t="spesifikasi" aria-selected="false">Spesifikasi</button>
+          <button class="tab" role="tab" data-action="tab" data-t="perjalanan" aria-selected="false">Perjalanan Kartu</button>
+          <button class="tab" role="tab" data-action="tab" data-t="demo" aria-selected="false">Demo Tempel</button>
+          <button class="tab" role="tab" data-action="tab" data-t="asumsi" aria-selected="false">Asumsi</button>
+        </div>
+        <div id="tabBody"></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<footer class="ft">
+  <span><strong>Prototipe konseptual, bukan produk resmi Bank Indonesia.</strong> Rupiah Digital ritel belum diluncurkan untuk publik.</span>
+  <span class="sep" aria-hidden="true"></span>
+  <button class="btn sm" data-action="selftest">Uji Mandiri</button>
+  <button class="btn sm" data-action="cetak">Cetak lembar spesifikasi</button>
+</footer>
+<div id="printArea"></div>
+</div>
+
+<div id="toasts" aria-live="polite" role="status"></div>
+
+<div class="modal" id="mdBaca" role="dialog" aria-modal="true" aria-labelledby="mdBacaT">
+  <div class="sheet">
+    <div class="mh"><h2 id="mdBacaT">Mode Baca — pembesaran 3×</h2>
+      <div class="ctrow">
+        <button class="btn sm" data-action="bacaSisi" data-s="depan">Depan</button>
+        <button class="btn sm" data-action="bacaSisi" data-s="belakang">Belakang</button>
+        <button class="btn sm" data-action="tutupModal" data-m="mdBaca">Tutup</button>
+      </div></div>
+    <p class="cap" style="margin-bottom:8px">Pada kartu asli teks belakang berukuran ± 6–7 pt. Pembesaran ini hanya alat baca bagi juri.</p>
+    <div id="readcard"><div class="inner"></div></div>
+  </div>
+</div>
+
+<div class="modal" id="mdTest" role="dialog" aria-modal="true" aria-labelledby="mdTestT">
+  <div class="sheet" style="max-width:760px">
+    <div class="mh"><h2 id="mdTestT">Uji Mandiri (selfTest)</h2>
+      <button class="btn sm" data-action="tutupModal" data-m="mdTest">Tutup</button></div>
+    <div id="testBody"></div>
+  </div>
+</div>
+
+<div class="modal" id="mdInfo" role="dialog" aria-modal="true" aria-labelledby="mdInfoT">
+  <div class="sheet" style="max-width:560px">
+    <div class="mh"><h2 id="mdInfoT">Keterangan</h2>
+      <button class="btn sm" data-action="tutupModal" data-m="mdInfo">Tutup</button></div>
+    <div id="infoBody"></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ================= 1. CONFIG — seluruh konstanta ================= */
+const CONFIG = {
+  dim:{ wMm:85.6, hMm:53.98, tMm:0.76, rMm:3.18, pxPerMm:4.6,
+        notchHMm:6.7, notchDMm:1.5, notchRMm:1.0 },        // ISO/IEC 7810 ID-1
+  persp:1400, explodeGap:70, embossMm:0.25, chipModulMm:0.60,
+  // L1..L7 dari muka depan ke muka belakang; jumlah tebal = 0,76 mm
+  layers:[
+    {id:'L1', nama:'Overlay bening depan', mm:0.06, slices:2, edge:'rgba(135,190,240,.10)', sw:'#ECF6FF',
+     isi:'Pelindung gores dan tinta; permukaan kilau.', comp:'C12'},
+    {id:'L2', nama:'Lapisan cetak depan',  mm:0.14, slices:5, edge:'#7FB3E3', sw:'#CFE4FA',
+     isi:'Seni depan (teks, logo, pita jenis kartu) dan jendela modul cip.', comp:'C1'},
+    {id:'L3', nama:'Inti PVC depan',       mm:0.12, slices:4, edge:'#9FB2C8', sw:'#E7EEF7',
+     isi:'Rangka depan; berisi rongga modul cip dan potongan takik.', comp:'C11'},
+    {id:'L4', nama:'Inlay antena',         mm:0.14, slices:5, edge:'#C98D4E', sw:'#C77D3A',
+     isi:'Koil tembaga NFC 4 lilitan dan bantalan sambungan ke cip.', comp:'C9'},
+    {id:'L5', nama:'Inti PVC belakang',    mm:0.12, slices:4, edge:'#9FB2C8', sw:'#E7EEF7',
+     isi:'Inti pengaku agar kartu tidak mudah bengkok.', comp:'C11'},
+    {id:'L6', nama:'Lapisan cetak belakang', mm:0.12, slices:4, edge:'#8FBCE8', sw:'#D7E6F6',
+     isi:'Cara memakai 3 langkah, peringatan bencana, panduan kartu hilang.', comp:'C13'},
+    {id:'L7', nama:'Overlay bening belakang', mm:0.06, slices:2, edge:'rgba(135,190,240,.10)', sw:'#ECF6FF',
+     isi:'Pelindung gores pada sisi belakang.', comp:'C12'}
+  ],
+  // nilai uang (naskah LENTERA)
+  uang:{ batasSaldo:2000000, harianMax:500000, kantongTotalMax:1442870, pinAtas:100000, biayaKartu:35000 },
+  // pose baku (yaw, pitch)
+  views:{
+    depan:{yaw:0,pitch:0,label:'Depan'}, belakang:{yaw:180,pitch:0,label:'Belakang'},
+    kiri:{yaw:87,pitch:0,label:'Kiri'},  kanan:{yaw:-87,pitch:0,label:'Kanan'},
+    atas:{yaw:0,pitch:-87,label:'Atas'}, bawah:{yaw:0,pitch:87,label:'Bawah'},
+    tigaempat:{yaw:-28,pitch:-14,label:'3/4'}, bongkar:{yaw:-36,pitch:-20,label:'Bongkar'}
+  },
+  viewKeys:['depan','belakang','kiri','kanan','atas','bawah','tigaempat','bongkar'],
+  // komponen C1..C15
+  comps:[
+    {id:'C1', n:1, nama:'Merek dan nama produk', lok:'Muka depan, kiri atas', face:'depan', at:[0.470,0.152], alt:{B:[0.470,0.145],C:[0.430,0.252]},
+     fungsi:'Logo lentera sendiri, tanpa lambang negara atau logo Bank Indonesia.',
+     bahan:'Cetak offset pada lapisan L2.', analogi:'Papan nama toko.', src:'PDF'},
+    {id:'C2', n:2, nama:'Cip elemen aman', lok:'Muka depan, modul 3×3', face:'depan', at:[0.125,0.405], alt:{B:[0.866,0.165],C:[0.122,0.425]},
+     fungsi:'Menyimpan kantong luring dan penghitung transaksi monoton untuk mencegah pembayaran ganda.',
+     bahan:'Modul kontak-nirkontak, tebal ± 0,60 mm (asumsi).', analogi:'Brankas kecil dengan buku kas yang halamannya hanya bisa maju.', src:'Naskah'},
+    {id:'C3', n:3, nama:'Simbol nirkontak', lok:'Muka depan, kanan modul cip', face:'depan', at:[0.282,0.392], alt:{B:null,C:[0.268,0.418]},
+     fungsi:'Menunjukkan area tempel ke ponsel pedagang ber-NFC yang memasang QRIS Tap.',
+     bahan:'Cetak, tinta tunggal.', analogi:'Tanda "tempelkan tangan di sini" pada pintu otomatis.', src:'PDF'},
+    {id:'C4', n:4, nama:'Janji utama', lok:'Muka depan, pil tengah kiri', face:'depan', at:[0.505,0.577], alt:{B:[0.470,0.285],C:[0.520,0.705]},
+     fungsi:'Satu kalimat agar warga langsung tahu kartu ini tetap berguna saat sinyal padam.',
+     bahan:'Pil cetak dengan ikon sinyal-silang.', analogi:'Slogan di spanduk toko.', src:'PDF'},
+    {id:'C5', n:5, nama:'Nama pemilik tanpa NIK', lok:'Muka depan, kiri bawah', face:'depan', at:[0.038,0.735], alt:{B:[0.040,0.745],C:[0.040,0.575]},
+     fungsi:'Kartu terhubung ke NIK di sistem, tetapi NIK tidak dicetak agar kartu hilang tidak membocorkan identitas.',
+     bahan:'Cetak personalisasi.', analogi:'Nomor loker disimpan di kantor, tidak ditulis di kuncinya.', src:'Naskah'},
+    {id:'C6', n:6, nama:'Empat digit akhir', lok:'Muka depan, kanan bawah', face:'depan', at:[0.968,0.735], alt:{B:[0.330,0.640],C:[0.968,0.828]},
+     fungsi:'Cukup untuk melapor kartu hilang dan mencocokkan struk.',
+     bahan:'Cetak monospace.', analogi:'Dua huruf terakhir plat nomor untuk memastikan "yang ini".', src:'PDF'},
+    {id:'C7', n:7, nama:'Takik taktil', lok:'Tepi kanan, tengah tinggi kartu', face:'depan', at:[0.985,0.50],
+     fungsi:'Membantu tunanetra dan lansia mengenali arah dan sisi kartu dengan meraba.',
+     bahan:'Potongan tembus tinggi ± 6,7 mm, dalam ± 1,5 mm (asumsi ukuran).', analogi:'Tonjolan pada tombol F dan J keyboard.', src:'PDF'},
+    {id:'C8', n:8, nama:'Garis warna jenis kartu', lok:'Pita tepi bawah', face:'depan', at:[0.50,0.975],
+     fungsi:'Biru tua untuk Kartu Warga, jingga untuk Kartu Siaga Sementara. Usulan: pita membungkus tepi bawah.',
+     bahan:'Pita cetak tinggi 2,4% kartu; usulan membungkus tepi.', analogi:'Warna punggung buku di rak.', src:'PDF + usulan desain'},
+    {id:'C9', n:9, nama:'Antena NFC', lok:'Inlay L4, mengelilingi tepi dalam', face:'dalam', layer:'L4', at:[0.50,0.14],
+     fungsi:'Koil tembaga menangkap energi dari medan ponsel pedagang sehingga kartu tidak perlu baterai.',
+     bahan:'Kawat tembaga, 4 lilitan (jumlah lilitan ilustratif).', analogi:'Pengisi daya nirkabel: ponsel "meniup" energi, kartu "menadahnya".', src:'Asumsi desain'},
+    {id:'C10', n:10, nama:'Modul cip dan bantalan', lok:'Rongga menembus L1–L3', face:'dalam', layer:'L3', at:[0.125,0.405],
+     fungsi:'Rumah cip; tersambung ke antena.',
+     bahan:'Rongga milling, tebal modul ± 0,60 mm (asumsi).', analogi:'Mesin di dalam kotak mesin.', src:'Asumsi desain'},
+    {id:'C11', n:11, nama:'Inti PVC', lok:'Lapisan L3 dan L5', face:'dalam', layer:'L5', at:[0.70,0.70],
+     fungsi:'Rangka kaku dan pemisah lapisan.',
+     bahan:'PVC/PETG, 0,12 mm per lapis (tebal ilustratif).', analogi:'Tulang kartu.', src:'Asumsi desain'},
+    {id:'C12', n:12, nama:'Overlay bening', lok:'Lapisan L1 dan L7', face:'dalam', layer:'L1', at:[0.62,0.20],
+     fungsi:'Pelindung gores dan tinta.',
+     bahan:'Overlay bening 0,06 mm (tebal ilustratif).', analogi:'Laminasi pada kartu pelajar.', src:'Asumsi desain'},
+    {id:'C13', n:13, nama:'Lapisan cetak belakang', lok:'Muka belakang', face:'belakang', at:[0.50,0.28], alt:{B:[0.50,0.22],C:[0.50,0.20]},
+     fungsi:'Cara memakai 3 langkah, peringatan bencana, panduan kartu hilang, kotak QR info layanan.',
+     bahan:'Cetak pada L6.', analogi:'Papan petunjuk di dinding.', src:'PDF'},
+    {id:'C14', n:14, nama:'Aturan keamanan kartu', lok:'Muka belakang, bilah bawah', face:'belakang', at:[0.30,0.60], alt:{B:[0.30,0.80],C:[0.30,0.64]},
+     fungsi:'PIN wajib di atas Rp100.000, diketik di layar yang diputar ke arah pemilik; tidak dicetak NIK, saldo, dan PIN.',
+     bahan:'Aturan desain, bukan benda fisik.', analogi:'Gembok dua kunci: kartu dan PIN.', src:'Naskah'},
+    {id:'C15', n:15, nama:'Pernyataan prototipe', lok:'Muka depan dan belakang', face:'belakang', at:[0.70,0.90], alt:{B:[0.30,0.90],C:[0.62,0.90]},
+     fungsi:'"Prototipe konseptual, bukan produk resmi Bank Indonesia. Rupiah Digital ritel belum diluncurkan untuk publik."',
+     bahan:'Teks cetak wajib pada kedua sisi.', analogi:'Label "contoh" pada etalase.', src:'Aturan lomba'}
+  ],
+  varian:{
+    A:{nama:'Kartu Warga', last4:'4821', stripe:'#1565C0', stripeNama:'Biru tua · Kartu Warga'},
+    B:{nama:'Kontras Tinggi', last4:'4821', stripe:'#000000', stripeNama:'Hitam · Kartu Warga kontras tinggi'},
+    C:{nama:'Siaga Sementara', last4:'0917', stripe:'#F29D38', stripeNama:'Jingga · Kartu Siaga Sementara'}
+  },
+  asumsi:[
+    ['A-01','Skala layar 4,6 piksel per milimeter; zoom dan ketebalan hanya alat lihat, bukan ukuran produk.'],
+    ['A-02','Ketebalan tiap lapisan (0,06 / 0,14 / 0,12 / 0,14 / 0,12 / 0,12 / 0,06 mm) ilustratif; jumlah 0,76 mm mengikuti ISO/IEC 7810 ID-1. Tebal akhir ditentukan produsen kartu.'],
+    ['A-03','Dimensi takik (tinggi 6,7 mm, dalam 1,5 mm, sudut dalam membulat 1 mm) perkiraan desain, perlu uji raba.'],
+    ['A-04','Pita jenis kartu membungkus tepi bawah — ini usulan desain, bukan ketentuan.'],
+    ['A-05','Jumlah lilitan antena 4 putaran bersifat ilustratif.'],
+    ['A-06','Ukuran dan tebal modul cip (± 0,60 mm) asumsi desain.'],
+    ['A-K1','Kantong luring adalah cadangan dari saldo milik sendiri, bukan uang tambahan.'],
+    ['A-K2','Nominal bantuan Rp500.000 pada skenario bencana bersifat ilustratif.'],
+    ['A-K3','Warna PDF (navy/teal/jingga) diterjemahkan ke palet biru merek; jingga hanya kode status Kartu Siaga Sementara dan peringatan.'],
+    ['A-K4','Usia baterai tidak relevan: kartu pasif, energinya dari medan ponsel pedagang.'],
+    ['A-L1','Logo Bank Indonesia dan lambang negara tidak dipakai. Pojok kanan atas memakai slot [LOGO PENERBIT] untuk bank atau PJP mitra yang menerbitkan kartu.']
+  ]
+};
+CONFIG.dim.wPx = CONFIG.dim.wMm*CONFIG.dim.pxPerMm;
+CONFIG.dim.hPx = CONFIG.dim.hMm*CONFIG.dim.pxPerMm;
+/* sesuaikan resolusi dasar kartu dengan ukuran panggung; kembalikan true bila berubah */
+function setupSkala(){
+  const st=document.getElementById('stage'); const D=CONFIG.dim;
+  let ppm=4.6;
+  if(st&&st.clientWidth){
+    ppm=Math.min((st.clientWidth-36)/D.wMm,(st.clientHeight-150)/D.hMm);
+    ppm=Math.max(3.4,Math.min(9.2,ppm));
+  }
+  if(Math.abs(ppm-D.pxPerMm)<0.25) return false;
+  D.pxPerMm=ppm; D.wPx=D.wMm*ppm; D.hPx=D.hMm*ppm;
+  CONFIG.explodeGap=10*ppm;
+  return true;
+}
+
+/* ================= 2. STATE & STORE ================= */
+function stateAwal(){ return {
+  varian:'A', sisi:'depan',
+  pose:{yaw:-14,pitch:-8,zoom:1,panX:0,panY:0},
+  tampilan:'bebas', bongkar:0, tebalSkala:6, cahaya:0.5,
+  hotspot:true, dimensi:false, auto:false, suara:false, penampang:false,
+  layer:{L1:{show:true},L2:{show:true},L3:{show:true},L4:{show:true},L5:{show:true},L6:{show:true},L7:{show:true},solo:null},
+  terpilih:null, tab:'komponen',
+  kartu:{ last4:'4821', saldo:850000, batas:2000000, harian:500000,
+          daruratBuka:false, counter:31, diblokir:false, aktif:true, dipakai:[] },
+  pin:{ sisaCoba:3, kunciSampai:0 },
+  demo:{ step:'siap', nominal:0, pesan:'', hasil:null, pinBuf:'' },
+  perjalanan:{ langkah:1 },
+  ui:{ fontScale:1, kontrasTinggi:false, panelKiri:false }
+};}
+let state = stateAwal();
+const subs=[];
+const store={
+  getState:()=>state,
+  setState(patch){ Object.assign(state,patch); subs.forEach(f=>f(state)); },
+  subscribe(f){ subs.push(f); }
+};
+function render(){ subs.forEach(f=>f(state)); }
+
+/* ================= 3. UTIL ================= */
+const el=(s,r)=>(r||document).querySelector(s);
+const els=(s,r)=>Array.from((r||document).querySelectorAll(s));
+const rp=n=>'Rp'+Math.round(n).toLocaleString('id-ID');
+const mm=n=>n.toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})+' mm';
+const pct=n=>n.toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})+'%';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const reduceMotion=()=>!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+/* ikon garis 2 px ujung membulat */
+const ICONS={
+  lantern:'M12 2v3M7 6h10l-1.5 11h-7zM6 21h12M12 17v4',
+  drop:'M12 4c3 3.4 4.6 5.7 4.6 7.6A4.6 4.6 0 0 1 12 16a4.6 4.6 0 0 1-4.6-4.4C7.4 9.7 9 7.4 12 4z',
+  nfc:'M6 7a9 9 0 0 1 0 10M10 9a5 5 0 0 1 0 6M14 10.5a2 2 0 0 1 0 3',
+  chip:'M5 7h14v10H5zM9 7v10M15 7v10M5 11h14',
+  lock:'M6 11h12v9H6zM9 11V8a3 3 0 0 1 6 0v3',
+  sync:'M4 12a8 8 0 0 1 13.7-5.6L20 9M20 12a8 8 0 0 1-13.7 5.6L4 15M20 5v4h-4M4 19v-4h4',
+  alert:'M12 4 2.5 20h19zM12 10v4M12 17.5v.5',
+  info:'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5M12 8v.5',
+  eye:'M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
+  'eye-off':'M4 4l16 16M10 6.2A9.6 9.6 0 0 1 12 6c6.5 0 10 6 10 6a17 17 0 0 1-3.3 3.8M6.5 8.3A17 17 0 0 0 2 12s3.5 6 10 6a9.6 9.6 0 0 0 3.2-.5',
+  rotate:'M4 12a8 8 0 1 1 2.4 5.7M4 18v-4h4',
+  layers:'M12 3 3 8l9 5 9-5zM3 13l9 5 9-5M3 17.5l9 5 9-5',
+  ruler:'M3 9h18v6H3zM7 9v3M11 9v4M15 9v3M19 9v4',
+  'zoom-in':'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4M11 8v6M8 11h6',
+  'zoom-out':'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4M8 11h6',
+  sun:'M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4',
+  volume:'M4 9h4l5-4v14l-5-4H4zM17 9a4 4 0 0 1 0 6',
+  'volume-off':'M4 9h4l5-4v14l-5-4H4zM17 9l4 6M21 9l-4 6',
+  play:'M7 4l12 8-12 8z', pause:'M8 5h3v14H8zM13 5h3v14h-3z',
+  reset:'M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4', check:'M4 12.5 9.5 18 20 6', x:'M5 5l14 14M19 5 5 19',
+  phone:'M7 2h10v20H7zM10 19h4', user:'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0',
+  hub:'M12 3v5M12 16v5M3 12h5M16 12h5M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
+  store:'M4 9h16l-1 11H5zM4 9l1.5-5h13L20 9M9 20v-6h6v6',
+  shield:'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z', hand:'M8 12V6a1.6 1.6 0 1 1 3.2 0v5M11.2 11V5a1.6 1.6 0 1 1 3.2 0v6M14.4 11.5V7.6a1.6 1.6 0 1 1 3.2 0V15a6 6 0 0 1-6 6h-1a5 5 0 0 1-4.3-2.4L4 14.4a1.7 1.7 0 0 1 2.7-2L8 14'
+};
+function icon(nama,ukuran){ const d=ICONS[nama]||ICONS.info; const s=ukuran||18;
+  return '<svg class="ic" width="'+s+'" height="'+s+'" viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg>'; }
+/* ================= 4. GEOM — fungsi murni geometri ================= */
+const geom={
+  rad:d=>d*Math.PI/180,
+  // matriks gabungan CSS: rotateX(pitch) lalu rotateY(yaw) → M = Rx·Ry
+  mat(yawDeg,pitchDeg){
+    const a=geom.rad(pitchDeg), b=geom.rad(yawDeg);
+    const ca=Math.cos(a), sa=Math.sin(a), cb=Math.cos(b), sb=Math.sin(b);
+    // Rx = [1,0,0; 0,ca,-sa; 0,sa,ca]   Ry = [cb,0,sb; 0,1,0; -sb,0,cb]
+    return [
+      [cb,        0,   sb      ],
+      [ sa*sb,   ca,  -sa*cb   ],
+      [-ca*sb,   sa,   ca*cb   ]
+    ];
+  },
+  apply(M,p){ return [
+    M[0][0]*p[0]+M[0][1]*p[1]+M[0][2]*p[2],
+    M[1][0]*p[0]+M[1][1]*p[1]+M[1][2]*p[2],
+    M[2][0]*p[0]+M[2][1]*p[1]+M[2][2]*p[2]]; },
+  // normal muka dalam koordinat lokal kartu (x kanan, y bawah, z ke penonton)
+  normals:{ depan:[0,0,1], belakang:[0,0,-1], kiri:[-1,0,0], kanan:[1,0,0], atas:[0,-1,0], bawah:[0,1,0] },
+  dotView(M,nLocal){ const n=geom.apply(M,nLocal); return n[2]; },
+  // proyeksi titik lokal (px) ke layar relatif pusat panggung
+  project(M,p,zoom,d){
+    const w=geom.apply(M,[p[0]*zoom,p[1]*zoom,p[2]*zoom]);
+    const f=d/Math.max(1,(d-w[2]));
+    return {x:w[0]*f, y:w[1]*f, z:w[2]};
+  },
+  // selisih sudut terpendek
+  shortest(a,b){ let d=(b-a)%360; if(d>180)d-=360; if(d<-180)d+=360; return d; },
+  // peredupan permukaan
+  shade(M,nLocal,cahaya){
+    const n=geom.apply(M,nLocal);
+    const L=[-0.35+0.7*cahaya, -0.55, 0.78]; const ln=Math.hypot(L[0],L[1],L[2]);
+    const d=(n[0]*L[0]+n[1]*L[1]+n[2]*L[2])/ln;
+    return clamp(0.80+0.20*d, 0.80, 1.0);
+  },
+  // rasio kontras WCAG
+  lum(hex){ const c=hex.replace('#',''); const v=[0,2,4].map(i=>parseInt(c.substr(i,2),16)/255)
+      .map(x=>x<=0.03928?x/12.92:Math.pow((x+0.055)/1.055,2.4));
+    return 0.2126*v[0]+0.7152*v[1]+0.0722*v[2]; },
+  contrast(a,b){ const l1=geom.lum(a),l2=geom.lum(b); const hi=Math.max(l1,l2),lo=Math.min(l1,l2);
+    return (hi+0.05)/(lo+0.05); }
+};
+
+/* ---- siluet kartu: sudut membulat + takik tepi kanan ---- */
+function notchClip(){
+  const D=CONFIG.dim, S=D.pxPerMm;
+  const W=D.wPx, H=D.hPx, R=D.rMm*S, nh=D.notchHMm*S, nd=D.notchDMm*S, nr=D.notchRMm*S;
+  const P=[]; const push=(x,y)=>P.push(x.toFixed(2)+'px '+y.toFixed(2)+'px');
+  const arc=(cx,cy,r,a0,a1,n)=>{ for(let i=0;i<=n;i++){ const a=a0+(a1-a0)*i/n; push(cx+r*Math.cos(a), cy+r*Math.sin(a)); } };
+  const PI=Math.PI;
+  arc(R,R,R,PI,1.5*PI,6);                 // sudut kiri atas
+  arc(W-R,R,R,1.5*PI,2*PI,6);             // sudut kanan atas
+  const y0=H/2-nh/2, y1=H/2+nh/2;         // takik tepi kanan
+  push(W, y0-nr);
+  arc(W-nr, y0-nr, nr, 0, 0.5*PI, 4);     // masuk membulat
+  push(W-nd+nr, y0);
+  arc(W-nd+nr, y0+nr, nr, 1.5*PI, PI, 4); // dasar takik atas
+  push(W-nd, y1-nr);
+  arc(W-nd+nr, y1-nr, nr, PI, 0.5*PI, 4); // dasar takik bawah
+  push(W-nr, y1);
+  arc(W-nr, y1+nr, nr, 1.5*PI, 2*PI, 4);  // keluar membulat
+  push(W, H-R);
+  arc(W-R,H-R,R,0,0.5*PI,6);              // sudut kanan bawah
+  arc(R,H-R,R,0.5*PI,PI,6);               // sudut kiri bawah
+  return 'polygon('+P.join(',')+')';
+}
+
+/* ================= 5. renderFace — seni kartu sebagai SVG ================= */
+/* viewBox 0 0 856 540 → 1 unit ≈ 0,1 mm */
+const VB={W:856,H:540};
+const X=p=>+(VB.W*p).toFixed(1), Y=p=>+(VB.H*p).toFixed(1);
+
+function svgLentera(x,y,s,warnaGaris,warnaTetes){
+  return '<g transform="translate('+x+','+y+') scale('+s+')" fill="none" stroke="'+warnaGaris+'" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">'+
+    '<path d="M12 1v3.4"/><path d="M4.6 6.2h14.8l-2 15.4H6.6z"/><path d="M3 23.4h18"/>'+
+    '<path d="M12 9.2c2.8 3 4.1 5 4.1 6.6A4.1 4.1 0 0 1 12 19.9a4.1 4.1 0 0 1-4.1-4.1c0-1.6 1.3-3.6 4.1-6.6z" fill="'+warnaTetes+'"/></g>';
+}
+function svgChip(x,y,w,h,emas){
+  const p=[]; const cw=w/3, ch=h/3;
+  for(let r=0;r<3;r++) for(let c=0;c<3;c++)
+    p.push('<rect x="'+(x+c*cw+2).toFixed(1)+'" y="'+(y+r*ch+2).toFixed(1)+'" width="'+(cw-4).toFixed(1)+'" height="'+(ch-4).toFixed(1)+'" rx="3" fill="'+(emas?'#D9B45A':'#C9CDD4')+'" stroke="'+(emas?'#B8923A':'#9AA0A8')+'" stroke-width="1.5"/>');
+  return '<g><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="8" fill="'+(emas?'#E6C878':'#DDE1E6')+'" stroke="'+(emas?'#B8923A':'#9AA0A8')+'" stroke-width="2"/>'+p.join('')+'</g>';
+}
+function svgNfc(x,y,s,warna){
+  return '<g transform="translate('+x+','+y+') scale('+s+')" fill="none" stroke="'+warna+'" stroke-width="3.4" stroke-linecap="round">'+
+    '<path d="M2 2a16 16 0 0 1 0 22"/><path d="M11 5.5a10.5 10.5 0 0 1 0 15"/><path d="M19.5 9.5a4.5 4.5 0 0 1 0 7"/></g>';
+}
+function svgNoSignal(x,y,s,warna){
+  return '<g transform="translate('+x+','+y+') scale('+s+')" fill="none" stroke="'+warna+'" stroke-width="2.4" stroke-linecap="round">'+
+    '<path d="M2 16h3v5H2zM7.5 12h3v9h-3zM13 8h3v13h-3z"/><path d="M1 1l20 20"/></g>';
+}
+function svgSlotPenerbit(x,y,w,h,garis,teks){
+  // Slot logo penerbit: TIDAK memakai logo Bank Indonesia maupun lambang negara (asumsi A-L1)
+  return '<g><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="10" fill="rgba(255,255,255,.45)" '+
+    'stroke="'+garis+'" stroke-width="2" stroke-dasharray="7 6"/>'+
+    '<text x="'+(x+w/2)+'" y="'+(y+h/2-4)+'" text-anchor="middle" font-size="15" font-weight="800" fill="'+teks+'" letter-spacing="1">[LOGO</text>'+
+    '<text x="'+(x+w/2)+'" y="'+(y+h/2+15)+'" text-anchor="middle" font-size="15" font-weight="800" fill="'+teks+'" letter-spacing="1">PENERBIT]</text></g>';
+}
+function svgRings(cx,cy,warna,op){
+  return '<g fill="none" stroke="'+warna+'" stroke-width="3" opacity="'+op+'">'+
+    '<circle cx="'+cx+'" cy="'+cy+'" r="'+Y(0.12)+'"/><circle cx="'+cx+'" cy="'+cy+'" r="'+Y(0.21)+'"/>'+
+    '<circle cx="'+cx+'" cy="'+cy+'" r="'+Y(0.30)+'"/></g>';
+}
+const FS='font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif';
+const FM='font-family:ui-monospace,SF Mono,Consolas,monospace';
+function tx(x,y,s,w,fill,txt,anchor,extra){
+  return '<text x="'+x+'" y="'+y+'" font-size="'+s+'" font-weight="'+w+'" fill="'+fill+'"'+
+    (anchor?' text-anchor="'+anchor+'"':'')+' style="'+FS+'"'+(extra||'')+'>'+esc(txt)+'</text>';
+}
+function tm(x,y,s,w,fill,txt,anchor,ls){
+  return '<text x="'+x+'" y="'+y+'" font-size="'+s+'" font-weight="'+w+'" fill="'+fill+'"'+
+    (anchor?' text-anchor="'+anchor+'"':'')+' letter-spacing="'+(ls||2)+'" style="'+FM+'">'+esc(txt)+'</text>';
+}
+const DISC='Prototipe konseptual, bukan produk resmi Bank Indonesia';
+/* ---- muka DEPAN varian A (Kartu Warga) ---- */
+function faceA_depan(){
+  const g=[];
+  g.push('<defs><linearGradient id="gA" x1="0" y1="0" x2="1" y2="1">'+
+    '<stop offset="0" stop-color="#BBDEFB"/><stop offset="55%" stop-color="#64B5F6"/><stop offset="100%" stop-color="#42A5F5"/></linearGradient>'+
+    '<radialGradient id="rA" cx="18%" cy="14%" r="60%"><stop offset="0" stop-color="#E3F2FD" stop-opacity=".95"/>'+
+    '<stop offset="100%" stop-color="#E3F2FD" stop-opacity="0"/></radialGradient></defs>');
+  g.push('<rect width="856" height="540" fill="url(#gA)"/><rect width="856" height="540" fill="url(#rA)"/>');
+  g.push(svgRings(X(0.845),Y(0.52),'#BBDEFB',.45));
+  // merek
+  g.push(svgLentera(X(0.058),Y(0.055),2.9,'#0B2A55','#42A5F5'));
+  g.push(tx(X(0.155),Y(0.145),46,800,'#0B2A55','LENTERA',null,' letter-spacing="2.5"'));
+  g.push(tx(X(0.155),Y(0.205),16,700,'#1565C0','DOMPET SIAGA · KARTU',null,' letter-spacing="2.2"'));
+  // slot logo penerbit (bukan logo Bank Indonesia)
+  g.push(svgSlotPenerbit(X(0.775),Y(0.055),X(0.16),Y(0.20),'#1565C0','#0B2A55'));
+  // cip + nirkontak
+  g.push(svgChip(X(0.065),Y(0.33),X(0.12),Y(0.15),true));
+  g.push(svgNfc(X(0.228),Y(0.335),3.5,'#0B2A55'));
+  // pil janji utama
+  g.push('<rect x="'+X(0.065)+'" y="'+Y(0.54)+'" width="'+X(0.35)+'" height="'+Y(0.075)+'" rx="'+Y(0.0375)+'" fill="#FFFFFF" opacity=".88"/>');
+  g.push(svgNoSignal(X(0.082),Y(0.556),2.0,'#1565C0'));
+  g.push(tx(X(0.145),Y(0.597),19,700,'#0B2A55','Tetap bisa bayar tanpa sinyal'));
+  // identitas
+  g.push(tx(X(0.065),Y(0.70),14,700,'#1A4C8F','PEMILIK',null,' letter-spacing="2"'));
+  g.push(tx(X(0.065),Y(0.77),30,800,'#0B2A55','SITI AMINAH',null,' letter-spacing="1.2"'));
+  g.push(tx(X(0.93),Y(0.70),14,700,'#1A4C8F','NO. KARTU','end',' letter-spacing="2"'));
+  g.push(tm(X(0.93),Y(0.77),30,700,'#0B2A55','LTR ···· 4821','end',3));
+  // kaki
+  g.push(tx(X(0.065),Y(0.902),13,700,'#1A4C8F','Diterbitkan melalui [BANK / PJP MITRA]'));
+  g.push(tx(X(0.93),Y(0.902),11,600,'#2A5590',DISC,'end'));
+  // pita jenis kartu
+  g.push('<rect x="0" y="'+Y(0.976)+'" width="856" height="'+Y(0.024)+'" fill="#1565C0"/>');
+  return g.join('');
+}
+/* ---- muka BELAKANG varian A ---- */
+function faceA_belakang(){
+  const g=[]; const boxes=[
+    ['1. Tempelkan','ke ponsel pedagang yang memasang QRIS Tap'],
+    ['2. Ketik PIN','bila belanja di atas Rp100.000, di layar yang diputar ke arah Anda'],
+    ['3. Sinkronkan','saldo diperbarui saat ditempel di agen, hub posko, atau ponsel tersambung']
+  ];
+  g.push('<rect width="856" height="540" fill="#F4FAFF"/>');
+  g.push('<rect x="0" y="0" width="856" height="8" fill="#BBDEFB"/>');
+  g.push(tx(48,40,23,800,'#0B2A55','Cara memakai kartu'));
+  g.push(tx(48,62,14,600,'#3C5A8A','Batas saldo Rp2.000.000 · tanpa rekening'));
+  boxes.forEach((b,i)=>{ const y=78+i*46;
+    g.push('<rect x="48" y="'+y+'" width="760" height="40" rx="10" fill="#FFFFFF" stroke="#BBDEFB" stroke-width="1.5"/>');
+    g.push(tx(62,y+26,15,800,'#1565C0',b[0]));
+    g.push(tx(62+[106,92,110][i],y+26,13.5,500,'#0B2A55','— '+b[1]));
+  });
+  g.push('<rect x="48" y="222" width="760" height="54" rx="10" fill="#FFF3E0" stroke="#F29D38" stroke-width="1.5"/>');
+  g.push(tx(62,244,13.5,800,'#8A5200','Saat bencana'));
+  g.push(tx(62,264,13,500,'#5C3A00','lapis darurat terbuka otomatis setelah status tanggap darurat wilayah Anda ditetapkan.'));
+  g.push('<rect x="48" y="288" width="760" height="54" rx="10" fill="#FFFFFF" stroke="#BBDEFB" stroke-width="1.5"/>');
+  g.push(tx(62,310,13.5,800,'#0B2A55','Kartu hilang?'));
+  g.push(tx(62,330,13,500,'#3C5A8A','Laporkan ke agen Laku Pandai, kantor pos, atau [NOMOR LAYANAN]. Kartu diblokir pada sinkronisasi berikutnya.'));
+  g.push(tx(48,374,13,600,'#3C5A8A','Kartu ini pasif: tidak berbaterai, tidak perlu diisi daya.'));
+  g.push(tx(48,396,13,600,'#3C5A8A','Jangan menuliskan PIN pada kartu atau pada sarungnya.'));
+  // bilah bawah
+  g.push('<rect x="0" y="424" width="856" height="116" fill="#0B2A55"/>');
+  g.push(tx(48,460,14.5,700,'#FFFFFF','Kartu terhubung ke NIK pemilik. Nomor NIK tidak dicetak di kartu.'));
+  g.push(tx(48,486,12.5,600,'#FFE0A3',DISC+'.'));
+  g.push(tx(48,508,12.5,600,'#FFE0A3','Rupiah Digital ritel belum diluncurkan untuk publik.'));
+  g.push('<rect x="704" y="440" width="96" height="86" rx="8" fill="#FFFFFF"/>');
+  g.push(tx(752,478,12,700,'#0B2A55','[QR info','middle'));
+  g.push(tx(752,496,12,700,'#0B2A55','layanan]','middle'));
+  return g.join('');
+}
+/* ---- varian B: kontras tinggi ---- */
+function faceB_depan(){
+  const g=[];
+  g.push('<rect width="856" height="540" fill="#FFFFFF"/>');
+  g.push('<rect x="3" y="3" width="850" height="534" fill="none" stroke="#000000" stroke-width="6"/>');
+  g.push('<rect x="14" y="14" width="828" height="512" fill="none" stroke="#42A5F5" stroke-width="2"/>');
+  g.push(svgLentera(X(0.052),Y(0.052),2.9,'#000000','#42A5F5'));
+  g.push(tx(X(0.152),Y(0.145),48,800,'#000000','LENTERA',null,' letter-spacing="2"'));
+  g.push(svgChip(X(0.80),Y(0.08),X(0.13),Y(0.165),false));
+  g.push(tx(X(0.055),Y(0.30),34,800,'#000000','Bisa bayar tanpa sinyal'));
+  g.push(tx(X(0.055),Y(0.395),16,700,'#000000','NO. KARTU',null,' letter-spacing="2"'));
+  g.push(tm(X(0.055),Y(0.665),119,800,'#000000','4821',null,10));
+  g.push(tx(X(0.055),Y(0.755),18,700,'#000000','SITI AMINAH'));
+  g.push(tx(X(0.055),Y(0.825),14,600,'#000000','Diterbitkan melalui [BANK / PJP MITRA]'));
+  g.push(tx(X(0.055),Y(0.905),12,600,'#000000',DISC));
+  // tiga titik timbul kanan bawah (juga dibuat menonjol di 3D)
+  for(let i=0;i<3;i++) g.push('<circle cx="'+(X(0.80)+i*34)+'" cy="'+Y(0.80)+'" r="13" fill="#D7DEE8" stroke="#000000" stroke-width="2.5"/>');
+  g.push(svgSlotPenerbit(X(0.615),Y(0.085),X(0.155),Y(0.15),'#000000','#000000'));
+  g.push('<rect x="0" y="'+Y(0.976)+'" width="856" height="'+Y(0.024)+'" fill="#000000"/>');
+  return g.join('');
+}
+function faceB_belakang(){
+  const g=[];
+  g.push('<rect width="856" height="540" fill="#FFFFFF"/>');
+  g.push('<rect x="3" y="3" width="850" height="534" fill="none" stroke="#000000" stroke-width="6"/>');
+  g.push(tx(48,66,30,800,'#000000','Cara memakai'));
+  const langkah=['1. TEMPELKAN ke ponsel pedagang','2. KETIK PIN bila di atas Rp100.000','3. SINKRONKAN di agen atau hub'];
+  langkah.forEach((t,i)=>{ const y=118+i*66;
+    g.push('<rect x="48" y="'+(y-34)+'" width="760" height="54" rx="8" fill="#FFFFFF" stroke="#000000" stroke-width="3"/>');
+    g.push(tx(66,y,24,800,'#000000',t)); });
+  g.push(tx(48,352,22,800,'#000000','Kartu hilang?'));
+  g.push(tx(48,386,21,600,'#000000','Hubungi agen Laku Pandai.'));
+  g.push(tx(48,432,17,700,'#000000','NIK, saldo, dan PIN tidak dicetak di kartu.'));
+  g.push(tx(48,474,15,600,'#000000',DISC+'.'));
+  g.push(tx(48,504,15,600,'#000000','Rupiah Digital ritel belum diluncurkan untuk publik.'));
+  return g.join('');
+}
+/* ---- varian C: Kartu Siaga Sementara ---- */
+function faceC_depan(){
+  const g=[];
+  g.push('<rect width="856" height="540" fill="#FFF3E0"/>');
+  g.push(svgRings(X(0.845),Y(0.56),'#90CAF9',.35));
+  g.push('<rect x="0" y="0" width="856" height="74" fill="#F29D38"/>');
+  g.push(tx(X(0.032),48,27,800,'#0B2A55','KARTU SIAGA SEMENTARA',null,' letter-spacing="1.6"'));
+  g.push(svgLentera(X(0.042),Y(0.165),2.3,'#0B2A55','#42A5F5'));
+  g.push(tx(X(0.128),Y(0.255),32,800,'#0B2A55','LENTERA',null,' letter-spacing="2"'));
+  g.push(svgSlotPenerbit(X(0.775),Y(0.165),X(0.16),Y(0.185),'#8A5200','#5C3A00'));
+  g.push(svgChip(X(0.065),Y(0.355),X(0.115),Y(0.145),true));
+  g.push(svgNfc(X(0.218),Y(0.365),3.0,'#0B2A55'));
+  g.push(tx(X(0.065),Y(0.585),15,700,'#5C3A00','Diterbitkan di Posko [NAMA POSKO], [KABUPATEN]'));
+  g.push(tx(X(0.065),Y(0.645),15,700,'#5C3A00','Berlaku selama status tanggap darurat'));
+  g.push(tx(X(0.065),Y(0.715),13.5,500,'#0B2A55','Menerima bantuan tunai berbasis NIK dan dipakai di pedagang QRIS Tap terdekat'));
+  g.push(tm(X(0.93),Y(0.80),28,700,'#0B2A55','LTR ···· 0917','end',3));
+  g.push(tx(X(0.065),Y(0.815),13.5,500,'#0B2A55','Saldo berpindah ke kartu tetap setelah pemulihan'));
+  g.push(tx(X(0.065),Y(0.902),12,600,'#5C3A00','Tanpa nama pemilik tercetak · identitas terhubung ke NIK'));
+  g.push(tx(X(0.93),Y(0.902),11,600,'#5C3A00',DISC,'end'));
+  g.push('<rect x="0" y="'+Y(0.976)+'" width="856" height="'+Y(0.024)+'" fill="#F29D38"/>');
+  return g.join('');
+}
+function faceC_belakang(){
+  const g=[];
+  g.push('<rect width="856" height="540" fill="#FFFBF4"/>');
+  g.push('<rect x="0" y="0" width="856" height="56" fill="#F29D38"/>');
+  g.push(tx(48,38,21,800,'#0B2A55','Cara memakai kartu siaga'));
+  const langkah=['1. Tempelkan ke ponsel pedagang QRIS Tap','2. Ketik PIN bila di atas Rp100.000','3. Tempel di hub posko untuk sinkronisasi dan bantuan'];
+  langkah.forEach((t,i)=>{ const y=92+i*52;
+    g.push('<rect x="48" y="'+(y-26)+'" width="760" height="42" rx="10" fill="#FFFFFF" stroke="#F29D38" stroke-width="1.5"/>');
+    g.push(tx(64,y,15,700,'#0B2A55',t)); });
+  g.push('<rect x="48" y="256" width="760" height="56" rx="10" fill="#FFF3E0" stroke="#F29D38" stroke-width="1.5"/>');
+  g.push(tx(64,280,14,800,'#8A5200','Kartu hilang?'));
+  g.push(tx(64,300,13,500,'#5C3A00','Hubungi petugas posko. Kartu diblokir pada sinkronisasi berikutnya.'));
+  g.push(tx(48,344,13.5,600,'#3C5A8A','Kartu sementara ditukar menjadi kartu tetap di agen Laku Pandai setelah masa tanggap darurat berakhir.'));
+  g.push('<rect x="0" y="424" width="856" height="116" fill="#0B2A55"/>');
+  g.push(tx(48,460,14.5,700,'#FFFFFF','Kartu terhubung ke NIK pemilik. Nomor NIK tidak dicetak di kartu.'));
+  g.push(tx(48,486,12.5,600,'#FFE0A3',DISC+'.'));
+  g.push(tx(48,508,12.5,600,'#FFE0A3','Rupiah Digital ritel belum diluncurkan untuk publik.'));
+  g.push('<rect x="704" y="440" width="96" height="86" rx="8" fill="#FFFFFF"/>');
+  g.push(tx(752,478,12,700,'#0B2A55','[QR info','middle'));
+  g.push(tx(752,496,12,700,'#0B2A55','layanan]','middle'));
+  return g.join('');
+}
+const FACES={A:{depan:faceA_depan,belakang:faceA_belakang},B:{depan:faceB_depan,belakang:faceB_belakang},C:{depan:faceC_depan,belakang:faceC_belakang}};
+function renderFace(varian,sisi,opsi){
+  opsi=opsi||{};
+  const isi=(FACES[varian]||FACES.A)[sisi==='belakang'?'belakang':'depan']();
+  return '<svg viewBox="0 0 856 540" xmlns="http://www.w3.org/2000/svg" role="img" '+
+    'aria-label="Kartu LENTERA varian '+varian+' sisi '+sisi+'" preserveAspectRatio="none">'+isi+'</svg>';
+}
+/* ================= 6. SCENE — pembangun DOM 3D ================= */
+const scene={
+  root:null, slices:[], planes:[], glosses:[], embossWrap:null, built:false,
+  build(){
+    const D=CONFIG.dim; const host=el('#card3d'); host.innerHTML='';
+    host.style.setProperty('--cw',D.wPx+'px'); host.style.setProperty('--ch',D.hPx+'px');
+    host.style.setProperty('--clip',notchClip());
+    host.style.setProperty('--crad',(CONFIG.dim.rMm*CONFIG.dim.pxPerMm).toFixed(1)+'px');
+    scene.slices=[]; scene.planes=[]; scene.glosses=[];
+    CONFIG.layers.forEach((L,li)=>{
+      const wrap=document.createElement('div'); wrap.className='layer'; wrap.dataset.layer=L.id;
+      for(let s=0;s<L.slices;s++){
+        const d=document.createElement('div'); d.className='slice';
+        d.style.background=L.edge; d.dataset.layer=L.id; d.dataset.si=s;
+        if(L.id==='L4') d.style.background='linear-gradient(90deg,#B87A3C,#E0A968 40%,#B87A3C)';
+        wrap.appendChild(d); scene.slices.push({node:d,L:L,si:s});
+      }
+      // bidang ilustrasi isi lapisan
+      if(L.id==='L3'||L.id==='L4'||L.id==='L5'){
+        const p=document.createElement('div'); p.className='plane inner'; p.dataset.layer=L.id;
+        p.innerHTML=scene.innerArt(L.id); wrap.appendChild(p);
+        scene.planes.push({node:p,L:L,kind:'inner'});
+      }
+      if(L.id==='L2'){
+        const p=document.createElement('div'); p.className='plane front'; p.dataset.layer=L.id;
+        wrap.appendChild(p); scene.planes.push({node:p,L:L,kind:'front'});
+      }
+      if(L.id==='L6'){
+        const p=document.createElement('div'); p.className='plane back'; p.dataset.layer=L.id;
+        wrap.appendChild(p); scene.planes.push({node:p,L:L,kind:'back'});
+      }
+      if(L.id==='L1'||L.id==='L7'){
+        const gl=document.createElement('div'); gl.className='gloss'; wrap.appendChild(gl);
+        scene.glosses.push({node:gl,L:L,kind:L.id==='L1'?'front':'back'});
+      }
+      wrap.addEventListener('pointerenter',()=>{ if(state.bongkar>0) scene.hoverLayer(L.id,true); });
+      wrap.addEventListener('pointerleave',()=>{ if(state.bongkar>0) scene.hoverLayer(L.id,false); });
+      host.appendChild(wrap);
+    });
+    // pita jenis kartu membungkus tepi bawah (usulan desain A-04)
+    const rb=document.createElement('div'); rb.className='rimb'; rb.id='rimBottom';
+    el('#card3d').appendChild(rb); scene.rimb=rb;
+    // tiga titik timbul varian B
+    const em=document.createElement('div'); em.className='emboss'; em.id='embossB';
+    em.innerHTML='<i></i><i></i><i></i>'; el('#card3d').appendChild(em); scene.embossWrap=em;
+    scene.built=true; scene.paintFaces(); scene.layout();
+  },
+  innerArt(id){
+    const D=CONFIG.dim;
+    if(id==='L3') return '<svg viewBox="0 0 856 540" preserveAspectRatio="none">'+
+      '<rect width="856" height="540" fill="#EEF4FB"/>'+
+      '<rect x="'+X(0.065)+'" y="'+Y(0.33)+'" width="'+X(0.12)+'" height="'+Y(0.15)+'" rx="8" fill="#C3CEDC" stroke="#8FA3B8" stroke-width="3"/>'+
+      tx(X(0.065),Y(0.56),13,700,'#7E8EA3','rongga modul cip')+
+      tx(X(0.55),Y(0.52),15,700,'#9FB0C4','INTI PVC DEPAN 0,12 mm')+'</svg>';
+    if(id==='L5') return '<svg viewBox="0 0 856 540" preserveAspectRatio="none">'+
+      '<rect width="856" height="540" fill="#EEF4FB"/>'+
+      tx(X(0.30),Y(0.52),15,700,'#9FB0C4','INTI PENGAKU 0,12 mm')+'</svg>';
+    // L4: koil antena
+    const c=[]; c.push('<rect width="856" height="540" fill="#F7EFE6"/>');
+    for(let i=0;i<4;i++){ const o=26+i*22;
+      c.push('<rect x="'+o+'" y="'+o+'" width="'+(856-2*o)+'" height="'+(540-2*o)+'" rx="'+(70-i*8)+'" fill="none" stroke="#C77D3A" stroke-width="7" class="coil"/>'); }
+    c.push('<rect x="'+X(0.065)+'" y="'+Y(0.33)+'" width="'+X(0.12)+'" height="'+Y(0.15)+'" rx="8" fill="#E6C878" stroke="#B8923A" stroke-width="3"/>');
+    c.push('<path d="M26 '+Y(0.40)+' H'+X(0.065)+' M26 '+Y(0.44)+' H'+X(0.065)+'" stroke="#C77D3A" stroke-width="7" fill="none"/>');
+    c.push(tx(X(0.42),Y(0.52),15,700,'#A9762F','INLAY ANTENA NFC · 4 lilitan (ilustratif)'));
+    return '<svg viewBox="0 0 856 540" preserveAspectRatio="none" id="coilSvg">'+c.join('')+'</svg>';
+  },
+  paintFaces(){
+    if(scene.rimb) scene.rimb.style.background=CONFIG.varian[state.varian].stripe;
+    scene.planes.forEach(p=>{
+      if(p.kind==='front') p.node.innerHTML=renderFace(state.varian,'depan');
+      if(p.kind==='back')  p.node.innerHTML=renderFace(state.varian,'belakang');
+    });
+    el('#embossB').style.display = state.varian==='B' ? 'block':'none';
+  },
+  hoverLayer(id,on){
+    els('.layer').forEach(n=>{ n.classList.toggle('dim', on && n.dataset.layer!==id); n.classList.toggle('hi', on && n.dataset.layer===id); });
+  },
+  /* posisi Z tiap irisan: dipanggil saat bongkar/ketebalan/visibilitas berubah */
+  layout(){
+    const D=CONFIG.dim, S=D.pxPerMm, sc=state.tebalSkala;
+    const T=D.tMm*sc*S; let z=T/2;
+    const gap=(state.bongkar/100)*CONFIG.explodeGap;
+    const n=CONFIG.layers.length;
+    CONFIG.layers.forEach((L,i)=>{
+      const tl=L.mm*sc*S;
+      L._zFront=z; L._zBack=z-tl; L._zCenter=z-tl/2; z-=tl;
+      L._off=((n-1)/2 - i)*gap;
+    });
+    scene.slices.forEach(o=>{
+      const L=o.L, tl=L.mm*sc*S, ns=L.slices;
+      const sep=Math.max(tl/(ns-1), 0.4);            // jaga jarak agar tidak berkedip
+      const start=L._zCenter + sep*(ns-1)/2;
+      const zz=start - sep*o.si + L._off;
+      o.node.style.transform='translateZ('+zz.toFixed(2)+'px)';
+    });
+    scene.planes.forEach(p=>{
+      const L=p.L;
+      if(p.kind==='front') p.node.style.transform='translateZ('+(L._zFront+L._off+0.2).toFixed(2)+'px)';
+      else if(p.kind==='back') p.node.style.transform='translateZ('+(L._zBack+L._off-0.2).toFixed(2)+'px) rotateY(180deg)';
+      else p.node.style.transform='translateZ('+(L._zFront+L._off+0.15).toFixed(2)+'px)';
+    });
+    scene.glosses.forEach(g=>{
+      const L=g.L;
+      g.node.style.transform = g.kind==='front'
+        ? 'translateZ('+(L._zFront+L._off+0.35).toFixed(2)+'px)'
+        : 'translateZ('+(L._zBack+L._off-0.35).toFixed(2)+'px) rotateY(180deg)';
+    });
+    // pita jenis kartu pada tepi bawah
+    const Rr=D.rMm*S, Tt=D.tMm*sc*S;
+    const rb=scene.rimb;
+    rb.style.width=(D.wPx-2*Rr).toFixed(1)+'px'; rb.style.height=Tt.toFixed(2)+'px';
+    rb.style.marginTop=(D.hPx/2-Tt/2).toFixed(2)+'px';
+    rb.style.background=CONFIG.varian[state.varian].stripe;
+    rb.style.transform='rotateX(90deg)';
+    rb.style.opacity = state.bongkar>10 ? '0' : '1';
+    // titik timbul varian B: menonjol 0,25 mm di atas muka depan
+    const L2e=CONFIG.layers[1];
+    const zEm=L2e._zFront+L2e._off+CONFIG.embossMm*sc*S;
+    scene.embossWrap.style.transform='translateZ('+zEm.toFixed(2)+'px)';
+    Array.from(scene.embossWrap.children).forEach((d,i)=>{
+      d.style.left=(X(0.80)/856*D.wPx + i*34/856*D.wPx - 6.5)+'px';
+      d.style.top=(Y(0.80)/540*D.hPx - 6.5)+'px';
+    });
+    // lapisan tersembunyi
+    CONFIG.layers.forEach(L=>{
+      const w=el('.layer[data-layer="'+L.id+'"]');
+      const solo=state.layer.solo;
+      const show = solo ? (solo===L.id) : state.layer[L.id].show;
+      w.classList.toggle('hidden',!show);
+    });
+  },
+  /* dipanggil tiap frame: rotasi, cahaya, hotspot */
+  applyTransform(){
+    const p=state.pose; const ez=p.zoom*scene.fitScale(); scene._ez=ez;
+    el('#card3d').style.transform='translate3d('+p.panX.toFixed(1)+'px,'+p.panY.toFixed(1)+'px,0) '+
+      'rotateX('+p.pitch.toFixed(2)+'deg) rotateY('+p.yaw.toFixed(2)+'deg) scale3d('+ez.toFixed(3)+','+ez.toFixed(3)+','+ez.toFixed(3)+')';
+    const M=geom.mat(p.yaw,p.pitch);
+    const root=document.documentElement.style;
+    root.setProperty('--shadeFront',geom.shade(M,[0,0,1],state.cahaya).toFixed(3));
+    root.setProperty('--shadeBack', geom.shade(M,[0,0,-1],state.cahaya).toFixed(3));
+    root.setProperty('--shadeEdge', (geom.shade(M,[1,0,0],state.cahaya)*0.94).toFixed(3));
+    root.setProperty('--glossAng', (((p.yaw%360)+360)%360*0.6 + 70 + p.pitch*0.5).toFixed(1)+'deg');
+    root.setProperty('--glossOp', (0.12+0.26*state.cahaya).toFixed(3));
+    // bayangan lantai
+    const f=el('#floor'); const dn=Math.abs(Math.cos(geom.rad(p.pitch)));
+    f.style.transform='translate(-50%,'+(CONFIG.dim.hPx*0.55*ez).toFixed(0)+'px) scale('+(0.55+0.55*dn*ez).toFixed(3)+','+(0.5+0.5*dn).toFixed(3)+')';
+    f.style.opacity=(0.35+0.4*dn).toFixed(2);
+    scene.placeHotspots(M);
+    if(state.dimensi) dimOverlay.draw(M);
+  },
+  _ez:1,
+  fitScale(){ const st=el('#stage'); if(!st||!st.clientWidth) return 1;
+    const D=CONFIG.dim;
+    const f=Math.min((st.clientWidth-56)/D.wPx,(st.clientHeight-150)/D.hPx);
+    return clamp(f,0.42,1); },
+  hsNodes:[],
+  buildHotspots(){
+    const host=el('#hotspots'); host.innerHTML=''; scene.hsNodes=[];
+    CONFIG.comps.forEach(c=>{
+      const b=document.createElement('button'); b.className='hs'+(c.face==='dalam'?' inner':(c.face==='belakang'?' rear':''));
+      b.innerHTML='<b>'+c.n+'</b>'; b.type='button';
+      b.setAttribute('aria-label','Komponen '+c.n+': '+c.nama);
+      b.dataset.action='pickComp'; b.dataset.c=c.id;
+      host.appendChild(b); scene.hsNodes.push({node:b,c:c});
+    });
+  },
+  placeHotspots(M){
+    const D=CONFIG.dim, S=D.pxPerMm, sc=state.tebalSkala, T=D.tMm*sc*S;
+    const st=el('#stage'); const cx=st.clientWidth/2, cy=st.clientHeight/2;
+    const L2=CONFIG.layers[1], L6=CONFIG.layers[5];
+    scene.hsNodes.forEach(o=>{
+      const c=o.c; let show=state.hotspot;
+      let zLocal, nLocal;
+      if(c.face==='depan'){ zLocal=(L2._zFront||T/2)+(L2._off||0)+1; nLocal=[0,0,1]; }
+      else if(c.face==='belakang'){ zLocal=(L6._zBack||-T/2)+(L6._off||0)-1; nLocal=[0,0,-1]; }
+      else { const L=CONFIG.layers.find(x=>x.id===c.layer); zLocal=(L._zCenter||0)+(L._off||0); nLocal=[0,0,1];
+             if(state.bongkar<15) show=false;
+             const solo=state.layer.solo;
+             if(solo? solo!==c.layer : !state.layer[c.layer].show) show=false; }
+      if(c.face==='depan'&&state.bongkar>=15&&!(state.layer.solo?state.layer.solo==='L2':state.layer.L2.show)) show=false;
+      const d=geom.dotView(M,nLocal);
+      if(d<0.1) show=false;
+      const pos=(c.alt&&c.alt[state.varian]!==undefined)?c.alt[state.varian]:c.at;
+      if(!pos){ o.node.classList.add('off'); return; }
+      const px=(pos[0]-0.5)*D.wPx, py=(pos[1]-0.5)*D.hPx;
+      const pr=geom.project(M,[px,py,zLocal],scene._ez,CONFIG.persp);
+      o.node.style.transform='translate3d('+(cx+pr.x+state.pose.panX).toFixed(1)+'px,'+(cy+pr.y+state.pose.panY).toFixed(1)+'px,0)';
+      o.node.classList.toggle('off',!show);
+      o.node.classList.toggle('sel',state.terpilih===c.id);
+    });
+  }
+};
+
+/* ---- overlay dimensi: garis ukur diproyeksikan dari titik 3D sungguhan ---- */
+const dimOverlay={
+  draw(M){
+    const host=el('#dimlayer'); const p=state.pose, D=CONFIG.dim, S=D.pxPerMm;
+    let key=null;
+    for(const k of CONFIG.viewKeys.slice(0,6)){
+      const v=CONFIG.views[k];
+      if(Math.abs(geom.shortest(p.yaw,v.yaw))<6 && Math.abs(geom.shortest(p.pitch,v.pitch))<6){ key=k; break; }
+    }
+    if(!key){ host.innerHTML=''; return; }
+    const st=el('#stage'), cx=st.clientWidth/2+p.panX, cy=st.clientHeight/2+p.panY;
+    const T=D.tMm*state.tebalSkala*S, W=D.wPx, H=D.hPx;
+    const P=q=>{ const r=geom.project(M,q,scene._ez,CONFIG.persp); return {x:cx+r.x,y:cy+r.y}; };
+    const g=[]; const C='#1565C0';
+    function nota(g,st,teks){
+      const y=st.clientHeight-18, w=teks.length*6.6+22;
+      g.push('<rect x="12" y="'+(y-16)+'" width="'+w.toFixed(0)+'" height="24" rx="12" fill="rgba(255,255,255,.92)" stroke="#BBDEFB"/>');
+      g.push('<text x="24" y="'+y+'" font-size="12.5" font-weight="700" fill="#0B2A55" style="'+FS+'">'+esc(teks)+'</text>');
+    }
+    function bracket(a,b,label,off){
+      const dx=b.x-a.x, dy=b.y-a.y, L=Math.hypot(dx,dy)||1;
+      const nx=-dy/L*off, ny=dx/L*off;
+      const A={x:a.x+nx,y:a.y+ny}, B={x:b.x+nx,y:b.y+ny};
+      g.push('<path d="M'+a.x.toFixed(1)+' '+a.y.toFixed(1)+' L'+A.x.toFixed(1)+' '+A.y.toFixed(1)+
+             ' M'+b.x.toFixed(1)+' '+b.y.toFixed(1)+' L'+B.x.toFixed(1)+' '+B.y.toFixed(1)+
+             ' M'+A.x.toFixed(1)+' '+A.y.toFixed(1)+' L'+B.x.toFixed(1)+' '+B.y.toFixed(1)+
+             '" stroke="'+C+'" stroke-width="1.5" fill="none"/>');
+      const mx=(A.x+B.x)/2, my=(A.y+B.y)/2, w=Math.max(70,label.length*7.2);
+      g.push('<rect x="'+(mx-w/2).toFixed(1)+'" y="'+(my-12).toFixed(1)+'" width="'+w.toFixed(0)+'" height="24" rx="12" fill="#fff" stroke="'+C+'"/>');
+      g.push('<text x="'+mx.toFixed(1)+'" y="'+(my+4).toFixed(1)+'" text-anchor="middle" font-size="12" font-weight="700" fill="#0B2A55" style="'+FS+'">'+esc(label)+'</text>');
+    }
+    const labT=mm(D.tMm)+(state.tebalSkala>1?' (diperbesar '+state.tebalSkala+'×)':' (skala asli)');
+    if(key==='depan'||key==='belakang'){
+      const z=(key==='depan'? T/2 : -T/2), sg=(key==='depan'?1:-1);
+      bracket(P([-W/2*sg,H/2,z]),P([W/2*sg,H/2,z]),mm(D.wMm),34);
+      bracket(P([W/2*sg,H/2,z]),P([W/2*sg,-H/2,z]),mm(D.hMm),26);
+      nota(g,st,'Radius sudut '+mm(D.rMm)+' · takik '+mm(D.notchHMm)+' × '+mm(D.notchDMm)+' di tepi kanan');
+    } else if(key==='kiri'||key==='kanan'){
+      const x=(key==='kanan'? W/2 : -W/2), sg=(key==='kanan'?1:-1);
+      bracket(P([x,-H/2,T/2*sg]),P([x,-H/2,-T/2*sg]),labT,-30);
+      bracket(P([x,-H/2,0]),P([x,H/2,0]),mm(D.hMm),30*sg);
+      if(key==='kanan') nota(g,st,'Takik tampak sebagai potongan tembus di tengah tepi kanan');
+    } else {
+      const y=(key==='bawah'? H/2 : -H/2), sg=(key==='bawah'?1:-1);
+      bracket(P([-W/2,y,T/2*sg]),P([-W/2,y,-T/2*sg]),labT,30);
+      bracket(P([-W/2,y,0]),P([W/2,y,0]),mm(D.wMm),-30*sg);
+      if(key==='bawah') nota(g,st,'Pita jenis kartu membungkus tepi bawah — usulan desain (A-04)');
+    }
+    host.innerHTML='<svg width="100%" height="100%" style="position:absolute;inset:0">'+g.join('')+'</svg>';
+  }
+};
+
+/* ================= 7. LOGIKA KARTU (murni) ================= */
+const U=CONFIG.uang;
+function plafonDarurat(){ return U.kantongTotalMax - U.harianMax; }      // 1.442.870 − 500.000 = 942.870
+function computeKartu(k){
+  const pd=plafonDarurat();
+  const darurat = k.daruratBuka ? Math.max(0, Math.min(pd, k.saldo - k.harian)) : 0;
+  return { saldo:k.saldo, harian:k.harian, darurat:darurat, plafonDarurat:pd,
+           usable: k.harian + darurat, batas:k.batas };
+}
+function cekInvarian(k){
+  const d=computeKartu(k); const e=[];
+  if(k.saldo<0) e.push('saldo negatif');
+  if(d.harian+d.darurat>k.saldo+0.5) e.push('kantong melebihi saldo');
+  if(k.harian>U.harianMax+0.5) e.push('lapis harian melebihi batas');
+  if(d.darurat>d.plafonDarurat+0.5) e.push('lapis darurat melebihi plafon');
+  if(!k.daruratBuka && d.darurat>0) e.push('lapis darurat terbuka tanpa status darurat');
+  return e;
+}
+/* pembayaran murni: mengembalikan {ok, alasan, pesan, kartu} */
+function bayar(k,{nominal,pinOk,ulangCounter}){
+  const kk=JSON.parse(JSON.stringify(k));
+  if(ulangCounter!=null){
+    if(kk.dipakai.indexOf(ulangCounter)>=0)
+      return {ok:false,alasan:'ganda',pesan:'Ditolak: penghitung #'+String(ulangCounter).padStart(4,'0')+' sudah dipakai.',kartu:kk};
+  }
+  if(kk.diblokir) return {ok:false,alasan:'blokir',pesan:'Ditolak: kartu ini sudah dilaporkan hilang.',kartu:kk};
+  if(!kk.aktif)   return {ok:false,alasan:'nonaktif',pesan:'Ditolak: kartu belum diaktifkan di agen.',kartu:kk};
+  if(!(nominal>0)) return {ok:false,alasan:'nominal',pesan:'Masukkan nominal lebih dari nol.',kartu:kk};
+  const d=computeKartu(kk);
+  if(nominal>d.usable){
+    const ps = kk.daruratBuka
+      ? 'Ditolak: melebihi isi kantong luring. Tersedia '+rp(d.usable)+'.'
+      : 'Ditolak: melebihi Lapis Harian ('+rp(d.harian)+' tersedia). Lapis Darurat baru terbuka saat status tanggap darurat resmi.';
+    return {ok:false,alasan:'limit',pesan:ps,kartu:kk};
+  }
+  if(nominal>U.pinAtas && !pinOk)
+    return {ok:false,alasan:'pin',pesan:'Ditolak: belanja di atas '+rp(U.pinAtas)+' memerlukan PIN.',kartu:kk};
+  const dariHarian=Math.min(nominal,kk.harian);
+  kk.harian-=dariHarian; kk.saldo-=nominal;
+  kk.dipakai.push(kk.counter); kk.counter+=1;
+  return {ok:true,alasan:null,kartu:kk,
+    pesan:'Pembayaran diterima '+rp(nominal)+' · Kartu LTR ···· '+kk.last4+' · Mode Luring · Penghitung #'+String(kk.counter-1).padStart(4,'0')+' · Menunggu sinkronisasi'};
+}
+
+/* ================= 8. UI — panel informasi ================= */
+function srcBadge(s){ const cls = /Asumsi/i.test(s)?'asum':(/simulasi/i.test(s)?'sim':''); return '<span class="src '+cls+'">'+esc(s)+'</span>'; }
+
+const TABS={
+  komponen(){
+    const c=CONFIG.comps.find(x=>x.id===state.terpilih);
+    let h='';
+    if(!c){
+      h+='<div class="box"><b>Pilih komponen</b><p class="cap">Ketuk titik bernomor pada kartu, atau pilih dari daftar di kiri. Tekan Bongkar untuk melihat komponen di dalam kartu.</p></div>';
+    } else {
+      h+='<div class="ctrow" style="gap:8px"><span class="pill">'+c.n+'</span><h3 style="flex:1">'+esc(c.nama)+'</h3></div>';
+      h+='<p class="cap" style="margin:4px 0 10px">'+esc(c.lok)+'</p>';
+      h+='<div class="box"><b>Fungsi</b><p>'+esc(c.fungsi)+'</p></div>';
+      h+='<div style="height:8px"></div><dl class="kv"><dt>Bahan / ukuran</dt><dd style="text-align:left;font-weight:600">'+esc(c.bahan)+'</dd></dl>';
+      h+='<div style="height:8px"></div><div class="box"><b>Analogi</b><p>'+esc(c.analogi)+'</p></div>';
+      h+='<p style="margin-top:10px">Sumber: '+srcBadge(c.src)+'</p>';
+    }
+    h+='<hr style="border:none;border-top:1px solid #BBDEFB;margin:12px 0"><h3>Semua komponen</h3>';
+    h+='<div class="clist" style="max-height:none">';
+    CONFIG.comps.forEach(x=>{ h+='<button class="citem'+(state.terpilih===x.id?' sel':'')+'" data-action="pickComp" data-c="'+x.id+'">'+
+      '<span class="num">'+x.n+'</span><span class="tx"><b>'+esc(x.nama)+'</b><small>'+esc(x.lok)+' · '+esc(x.src)+'</small></span></button>'; });
+    h+='</div>';
+    return h;
+  },
+  spesifikasi(){
+    const d=computeKartu(state.kartu);
+    const rows=[
+      ['Ukuran kartu','85,60 × 53,98 mm (ISO/IEC 7810 ID-1)','PDF'],
+      ['Tebal','0,76 mm · radius sudut 3,18 mm','PDF'],
+      ['Takik taktil','tinggi 6,7 mm, dalam 1,5 mm, tepi kanan','Asumsi desain'],
+      ['Batas saldo kartu',rp(U.batasSaldo)+' (uang elektronik tidak terdaftar)','Naskah'],
+      ['Kantong luring — Lapis Harian','hingga '+rp(U.harianMax),'Naskah'],
+      ['Kantong luring — Lapis Darurat','hingga '+rp(plafonDarurat())+' saat status tanggap darurat','Naskah'],
+      ['Total kantong luring maksimum',rp(U.kantongTotalMax),'Naskah'],
+      ['PIN wajib','di atas '+rp(U.pinAtas),'Naskah'],
+      ['Tidak dicetak di kartu','NIK, saldo, dan PIN','Naskah'],
+      ['Sumber daya kartu','pasif, tanpa baterai (energi dari medan ponsel pedagang)','Asumsi desain'],
+      ['Biaya per kartu',rp(U.biayaKartu)+' (asumsi model, Lampiran 10)','Asumsi desain'],
+      ['Varian aktif',state.varian+' · '+CONFIG.varian[state.varian].nama+' · pita '+CONFIG.varian[state.varian].stripeNama,'PDF']
+    ];
+    let h='<table class="spec"><tbody>';
+    rows.forEach(r=>{ h+='<tr><th>'+esc(r[0])+'</th><td>'+esc(r[1])+'<br>'+srcBadge(r[2])+'</td></tr>'; });
+    h+='</tbody></table>';
+    h+='<div style="height:10px"></div><div class="box"><b>Status simulasi kartu</b>'+
+      '<dl class="kv" style="margin-top:6px">'+
+      '<dt>Saldo terdaftar</dt><dd>'+rp(d.saldo)+'</dd>'+
+      '<dt>Lapis Harian terisi</dt><dd>'+rp(d.harian)+'</dd>'+
+      '<dt>Lapis Darurat terisi</dt><dd>'+rp(d.darurat)+(state.kartu.daruratBuka?'':' (terkunci)')+'</dd>'+
+      '<dt>Bisa dibayarkan luring</dt><dd>'+rp(d.usable)+'</dd>'+
+      '<dt>Penghitung berikutnya</dt><dd>#'+String(state.kartu.counter).padStart(4,'0')+'</dd></dl>'+
+      '<p class="cap" style="margin-top:6px">'+srcBadge('Data simulasi')+' angka di atas hanya untuk peragaan.</p></div>';
+    h+='<div class="ctrow" style="margin-top:10px"><button class="btn sm" data-action="salinSpek">Salin ringkasan</button>'+
+       '<button class="btn sm" data-action="cetak">Cetak lembar spesifikasi</button></div>';
+    return h;
+  },
+  asumsi(){
+    let h='<p class="cap">Pemisahan yang jujur antara apa yang bersumber dan apa yang kami asumsikan.</p>';
+    h+='<div style="height:8px"></div><ol class="asum">';
+    CONFIG.asumsi.forEach(a=>{ h+='<li><b>'+esc(a[0])+'</b> — '+esc(a[1])+'</li>'; });
+    h+='</ol>';
+    h+='<div style="height:10px"></div><div class="box warnb"><b>Catatan logo</b><p class="cap">Mockup ini sengaja tidak memuat logo Bank Indonesia maupun lambang negara. '+
+       'Pojok kanan atas memakai slot <b>[LOGO PENERBIT]</b> karena pada arsitektur dua lapis, yang menerbitkan kartu ke warga adalah bank atau PJP mitra, bukan bank sentral.</p></div>';
+    h+='<div style="height:8px"></div><div class="box"><b>Sumber tiap pernyataan</b><p class="cap">'+
+       srcBadge('Naskah')+' dari naskah LENTERA · '+srcBadge('PDF')+' dari rancangan kartu · '+
+       srcBadge('Asumsi desain')+' keputusan desain · '+srcBadge('Data simulasi')+' angka peraga.</p></div>';
+    return h;
+  },
+  perjalanan(){
+    const L=state.perjalanan.langkah; const k=state.kartu; const d=computeKartu(k);
+    const steps=[
+      ['Daftar','Di agen Laku Pandai atau kantor pos: NIK diverifikasi ke Dukcapil, PIN dibuat sendiri, kartu diisi tunai.'],
+      ['Belanja','Tempel ke ponsel pedagang ber-NFC yang memasang QRIS Tap.'],
+      ['Bencana','Lapis Darurat terbuka setelah status tanggap darurat wilayah ditetapkan.'],
+      ['Pulih','Sinkronisasi di agen atau hub posko; transaksi luring direkonsiliasi dan diperiksa pola kloning.']
+    ];
+    let h='<div class="steps">';
+    steps.forEach((s,i)=>{ h+='<button class="step'+(L===i+1?' on':'')+'" data-action="langkah" data-l="'+(i+1)+'" style="text-align:left;cursor:pointer;width:100%">'+
+      '<span class="n">'+(i+1)+'</span><span><b>'+esc(s[0])+'</b><br><span class="cap">'+esc(s[1])+'</span></span></button>'; });
+    h+='</div><div style="height:10px"></div>';
+    if(L===1){ h+='<div class="box">'+(k.aktif?'<b>Kartu aktif.</b> Saldo terdaftar '+rp(d.saldo)+'.':'<b>Kartu belum diaktifkan.</b>')+
+      '<div class="ctrow" style="margin-top:8px">'+
+      '<button class="btn sm" data-action="aktifkan">'+(k.aktif?'Jadikan belum aktif':'Aktifkan kartu di agen')+'</button></div></div>'; }
+    if(L===2){ h+='<div class="box"><b>Belanja</b><p class="cap">Buka tab Demo Tempel untuk mencoba pembayaran.</p>'+
+      '<button class="btn sm primary" data-action="tab" data-t="demo" style="margin-top:8px">Buka Demo Tempel</button></div>'; }
+    if(L===3){
+      h+='<div class="box warnb"><label class="sw"><input type="checkbox" id="cDarurat"'+(k.daruratBuka?' checked':'')+'><span class="track"></span>Tetapkan status tanggap darurat (ilustrasi)</label>';
+      if(k.daruratBuka){ h+='<p class="cap" style="margin-top:6px">Ditetapkan Pemerintah Kab. [X] · data BNPB · berlaku s.d. 10 Des 2026 '+srcBadge('Data simulasi')+'</p>'+
+        '<div style="height:8px"></div><div class="tandon" style="height:14px;border-radius:7px;background:#FFE0B2;overflow:hidden">'+
+        '<div style="height:100%;width:'+clamp(d.darurat/Math.max(1,d.plafonDarurat)*100,0,100).toFixed(1)+'%;background:#F29D38;transition:width .6s"></div></div>'+
+        '<p class="cap" style="margin-top:4px">Lapis Darurat terisi '+rp(d.darurat)+' dari plafon '+rp(d.plafonDarurat)+'.</p>'+
+        '<button class="btn sm" data-action="bantuan" style="margin-top:8px">Tempel di hub posko: terima bantuan '+rp(500000)+'</button>'+
+        '<p class="cap">'+srcBadge('Data simulasi')+' nominal bantuan ilustratif (A-K2).</p>'; }
+      else h+='<p class="cap" style="margin-top:6px">Lapis Darurat terkunci. Hanya Lapis Harian yang bisa dibelanjakan.</p>';
+      h+='</div>';
+    }
+    if(L===4){
+      h+='<div class="box"><b>Sinkronisasi dan pemeriksaan</b><div class="ctrow" style="margin-top:8px">'+
+        '<button class="btn sm primary" data-action="sinkron">Sinkronkan di agen/hub</button>'+
+        '<button class="btn sm" data-action="kloning">Simulasikan kartu ditiru</button></div>'+
+        '<p id="syncOut" class="cap" style="margin-top:8px">'+esc(state.demo.pesan||'Belum ada sinkronisasi pada sesi ini.')+'</p></div>';
+    }
+    h+='<div style="height:10px"></div><div class="box '+(k.diblokir?'dangerb':'')+'"><b>Kartu hilang?</b>'+
+      '<ol class="asum" style="margin-top:6px"><li>Lapor ke agen, kantor pos, atau nomor layanan.</li>'+
+      '<li>Kartu diblokir pada sinkronisasi berikutnya.</li>'+
+      '<li>Saldo terdaftar dipindah ke kartu baru.</li></ol>'+
+      '<div class="ctrow" style="margin-top:8px"><button class="btn sm" data-action="hilang">'+(k.diblokir?'Pulihkan kartu':'Laporkan kartu hilang')+'</button></div>'+
+      '<p class="cap" style="margin-top:8px"><b>Jujur:</b> saldo luring berisiko seperti uang tunai. Itulah alasan PIN diminta di atas '+rp(U.pinAtas)+'.</p></div>';
+    return h;
+  },
+  demo(){
+    const D=state.demo, k=state.kartu, d=computeKartu(k);
+    let h='<div class="box"><dl class="kv"><dt>Bisa dibayarkan luring</dt><dd>'+rp(d.usable)+'</dd>'+
+      '<dt>Lapis Harian</dt><dd>'+rp(d.harian)+'</dd>'+
+      '<dt>Lapis Darurat</dt><dd>'+(k.daruratBuka?rp(d.darurat):'terkunci')+'</dd>'+
+      '<dt>Penghitung berikutnya</dt><dd>#'+String(k.counter).padStart(4,'0')+'</dd></dl>'+
+      '<p class="cap" style="margin-top:4px">'+srcBadge('Data simulasi')+'</p></div><div style="height:10px"></div>';
+    if(D.step==='siap'||D.step==='hasil'){
+      h+='<h3>1 · Pilih nominal</h3><div class="ctrow" style="margin:6px 0">';
+      [45000,75000,145000,450000].forEach(n=>{ h+='<button class="btn sm'+(D.nominal===n?' is-on':'')+'" data-action="nominal" data-n="'+n+'">'+rp(n)+'</button>'; });
+      h+='</div><div class="ctrow"><input type="text" id="nomLain" inputmode="numeric" placeholder="Nominal lain" value="'+(D.nominal||'')+'" style="max-width:150px">'+
+        '<button class="btn sm" data-action="nominalLain">Pakai</button></div>';
+      h+='<div style="height:8px"></div><button class="btn primary" data-action="tampilkan" '+(D.nominal>0?'':'disabled')+'>Tampilkan untuk pembayar</button>';
+    }
+    if(D.step==='tempel'){
+      h+='<h3>2 · Tempelkan kartu</h3><p class="cap">Nominal '+rp(D.nominal)+'. Layar pedagang menghadap pembayar.</p>'+
+        '<div style="height:8px"></div><button class="btn primary" data-action="tempel">'+icon('nfc',18)+' Tempelkan kartu</button>'+
+        '<div style="height:8px"></div><button class="btn sm" data-action="batalDemo">Batal</button>';
+    }
+    if(D.step==='pin'){
+      const kunci=Date.now()<state.pin.kunciSampai;
+      h+='<h3>3 · Ketik PIN</h3><p class="cap">Layar diputar agar PIN tidak terlihat orang lain. Belanja '+rp(D.nominal)+' di atas '+rp(U.pinAtas)+'.</p>';
+      h+='<p style="font-family:var(--mono);letter-spacing:8px;font-size:24px;margin:8px 0">'+('•'.repeat(D.pinBuf.length)+'_'.repeat(Math.max(0,6-D.pinBuf.length)))+'</p>';
+      if(kunci) h+='<div class="box dangerb">PIN terkunci. Coba lagi nanti atau hubungi petugas. Sisa '+Math.ceil((state.pin.kunciSampai-Date.now())/1000)+' detik.</div>';
+      else{
+        h+='<div class="keypad">';
+        [1,2,3,4,5,6,7,8,9].forEach(n=>{h+='<button class="btn" data-action="pinKey" data-k="'+n+'">'+n+'</button>';});
+        h+='<button class="btn" data-action="pinKey" data-k="x">'+icon('x',16)+'</button>'+
+           '<button class="btn" data-action="pinKey" data-k="0">0</button>'+
+           '<button class="btn primary" data-action="pinOk">OK</button></div>';
+        h+='<p class="cap" style="margin-top:6px">Demo: enam digit apa saja diterima. Sisa percobaan '+state.pin.sisaCoba+'.</p>'+
+           '<div class="ctrow"><button class="btn sm" data-action="pinSalah">Simulasikan PIN salah</button>'+
+           '<button class="btn sm" data-action="batalDemo">Batal</button></div>';
+      }
+    }
+    if(D.step==='proses') h+='<div class="box"><b>Memproses…</b><p class="cap">Cip memeriksa penghitung monoton lalu memotong kantong luring.</p></div>';
+    if(D.step==='hasil'&&D.hasil){
+      h+='<div class="box '+(D.hasil.ok?'okb':'dangerb')+'" style="margin-top:10px"><b>'+(D.hasil.ok?'Berhasil':'Ditolak')+'</b>'+
+        '<p>'+esc(D.hasil.pesan)+'</p>'+(D.hasil.ok?'<p class="cap">Layar pedagang: Sisa saldo kartu '+rp(d.saldo)+'. Saldo hanya muncul setelah ditempel, tidak dicetak di kartu.</p>':'')+'</div>';
+      h+='<div class="ctrow" style="margin-top:8px"><button class="btn sm" data-action="ulangGanda">Coba bayar ulang (uji pembayaran ganda)</button></div>';
+    }
+    if(D.pesan) h+='<p class="cap" style="margin-top:8px">'+esc(D.pesan)+'</p>';
+    h+='<div style="height:10px"></div><button class="btn sm" data-action="resetDemo">Reset demo</button>';
+    return h;
+  }
+};
+/* ================= 9. RENDER UI ================= */
+function renderLayerList(){
+  const h=CONFIG.layers.map((L,i)=>{
+    const solo=state.layer.solo, show= solo? solo===L.id : state.layer[L.id].show;
+    return '<div class="lyrow'+(state.terpilih&&CONFIG.comps.find(c=>c.id===state.terpilih&&c.layer===L.id)?' sel':'')+'">'+
+      '<span class="swatch" style="background:'+L.sw+'"></span>'+
+      '<button class="nm" data-action="pickLayer" data-l="'+L.id+'">'+L.id+' · '+esc(L.nama)+
+        '<small>'+mm(L.mm)+' — '+esc(L.isi)+'</small></button>'+
+      '<button class="eye" data-action="solo" data-l="'+L.id+'" aria-label="Tampilkan hanya '+L.id+'" title="Solo">'+icon('layers',16)+'</button>'+
+      '<button class="eye" data-action="toggleLayer" data-l="'+L.id+'" aria-pressed="'+(show?'true':'false')+'" aria-label="'+(show?'Sembunyikan ':'Tampilkan ')+L.id+'">'+icon(show?'eye':'eye-off',16)+'</button>'+
+      '</div>';
+  }).join('');
+  el('#layerList').innerHTML=h+'<p class="cap" style="margin-top:6px">Jumlah tebal tujuh lapisan = '+mm(0.76)+'. '+srcBadge('Asumsi desain')+' tebal tiap lapis ilustratif.</p>';
+}
+function renderCompList(){
+  el('#compList').innerHTML=CONFIG.comps.map(c=>
+    '<button class="citem'+(state.terpilih===c.id?' sel':'')+'" data-action="pickComp" data-c="'+c.id+'">'+
+    '<span class="num">'+c.n+'</span><span class="tx"><b>'+esc(c.nama)+'</b><small>'+esc(c.lok)+'</small></span></button>').join('');
+}
+function renderTabs(){
+  els('.tab').forEach(t=>t.setAttribute('aria-selected', t.dataset.t===state.tab ? 'true':'false'));
+  el('#tabBody').innerHTML=(TABS[state.tab]||TABS.komponen)();
+  const cd=el('#cDarurat'); if(cd) cd.addEventListener('change',()=>actions.darurat(cd.checked));
+}
+function syncControls(){
+  els('[data-action="varian"]').forEach(b=>b.setAttribute('aria-pressed', b.dataset.v===state.varian?'true':'false'));
+  els('[data-action="view"]').forEach(b=>b.setAttribute('aria-pressed', b.dataset.v===state.tampilan?'true':'false'));
+  el('#btnBongkar').classList.toggle('is-on', state.bongkar>0);
+  el('#btnPenampang').classList.toggle('is-on', state.penampang);
+  el('#sBongkar').value=state.bongkar; el('#oBongkar').textContent=state.bongkar+'%';
+  el('#sTebal').value=state.tebalSkala; el('#oTebal').textContent=state.tebalSkala+'×';
+  el('#sZoom').value=Math.round(state.pose.zoom*100); el('#oZoom').textContent=state.pose.zoom.toFixed(2).replace('.',',')+'×';
+  el('#sCahaya').value=Math.round(state.cahaya*100); el('#oCahaya').textContent=Math.round(state.cahaya*100)+'%';
+  el('#cHot').checked=state.hotspot; el('#cDim').checked=state.dimensi;
+  el('#cAuto').checked=state.auto; el('#cSuara').checked=state.suara;
+  el('#scalehint').textContent = state.tebalSkala===1 ? 'Tebal asli 0,76 mm' : 'Tebal diperbesar '+state.tebalSkala+'× agar terlihat';
+  el('#viewname').textContent = 'Tampilan '+(state.tampilan==='bebas'?'bebas':(CONFIG.views[state.tampilan]||{label:'bebas'}).label);
+  el('#stage').classList.toggle('isBlocked', state.kartu.diblokir);
+  el('#stage').classList.toggle('inactive', !state.kartu.aktif);
+  if(!state.dimensi) el('#dimlayer').innerHTML='';
+  const fs=['Normal','Besar','Sangat Besar'][[1,1.15,1.3].indexOf(state.ui.fontScale)]||'Normal';
+  const fb=el('[data-action="font"]'); if(fb) fb.textContent='Ukuran huruf: '+fs;
+  el('[data-action="hc"]').setAttribute('aria-pressed',state.ui.kontrasTinggi?'true':'false');
+  document.documentElement.style.setProperty('--font-scale',state.ui.fontScale);
+  document.body.classList.toggle('hc',state.ui.kontrasTinggi);
+  document.body.classList.toggle('tanpaKiri',!state.ui.panelKiri);
+  const bk=el('[data-action="kiri"]'); if(bk) bk.setAttribute('aria-pressed',state.ui.panelKiri?'true':'false');
+  // ringkasan untuk pembaca layar
+  const c=CONFIG.comps.find(x=>x.id===state.terpilih);
+  el('#a11ySummary').textContent='Kartu varian '+state.varian+', '+el('#viewname').textContent.toLowerCase()+
+    ', bongkar '+state.bongkar+' persen'+(c?'. Komponen terpilih: '+c.nama+'. '+c.fungsi:'. Delapan titik komponen tersedia di muka depan.');
+}
+function renderAll(){ renderLayerList(); renderCompList(); renderTabs(); syncControls(); }
+store.subscribe(()=>{});
+
+function toast(msg,kind){
+  const t=document.createElement('div'); t.className='toast '+(kind||''); t.textContent=msg;
+  el('#toasts').appendChild(t); setTimeout(()=>{t.style.opacity='0';},2600); setTimeout(()=>t.remove(),3100);
+}
+function beep(ok){
+  if(!state.suara) return;
+  try{ const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+    const a=new AC(); const o=a.createOscillator(), g=a.createGain();
+    o.type='sine'; o.frequency.value= ok?880:220; g.gain.value=0.0001;
+    o.connect(g); g.connect(a.destination); const t=a.currentTime;
+    g.gain.exponentialRampToValueAtTime(0.09,t+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+0.28);
+    o.start(t); o.stop(t+0.3); setTimeout(()=>a.close(),500);
+  }catch(e){}
+}
+function openModal(id){ const m=el('#'+id); m.classList.add('open'); m._last=document.activeElement;
+  const f=m.querySelector('button'); if(f) f.focus(); }
+function closeModal(id){ const m=el('#'+id); m.classList.remove('open'); if(m._last&&m._last.focus) m._last.focus(); }
+
+/* ---------- penampang melintang ---------- */
+function drawXsec(){
+  const W=940,H=300, pad=56; // tebal digambar membesar
+  let y=40; const total=0.76; const h=(H-80);
+  const g=['<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto">'];
+  g.push('<rect width="'+W+'" height="'+H+'" fill="#F6FBFF"/>');
+  CONFIG.layers.forEach(L=>{
+    const lh=L.mm/total*h;
+    g.push('<rect x="'+pad+'" y="'+y.toFixed(1)+'" width="'+(W-pad-300)+'" height="'+lh.toFixed(1)+'" fill="'+L.sw+'" stroke="#8FA3B8" stroke-width="1"/>');
+    g.push('<path d="M'+(W-pad-300)+' '+(y+lh/2).toFixed(1)+' H'+(W-292)+'" stroke="#1565C0" stroke-width="1" fill="none"/>');
+    g.push('<text x="'+(W-286)+'" y="'+(y+lh/2+4).toFixed(1)+'" font-size="12.5" font-weight="700" fill="#0B2A55" style="'+FS+'">'+L.id+' · '+esc(L.nama)+' — '+esc(mm(L.mm))+'</text>');
+    if(L.id==='L4'){ for(let i=0;i<12;i++) g.push('<circle cx="'+(pad+40+i*50)+'" cy="'+(y+lh/2).toFixed(1)+'" r="'+Math.min(5,lh/2.4).toFixed(1)+'" fill="#6E3F13"/>'); }
+    y+=lh;
+  });
+  // rongga modul cip menembus L1..L3
+  const h13=(0.06+0.14+0.12)/total*h;
+  g.push('<rect x="'+(pad+30)+'" y="40" width="120" height="'+h13.toFixed(1)+'" fill="#E6C878" stroke="#B8923A" stroke-width="2"/>');
+  g.push('<text x="'+(pad+32)+'" y="30" font-size="12" font-weight="700" fill="#8A5200" style="'+FS+'">modul cip ≈ 0,60 mm (asumsi)</text>');
+  // dimensi total
+  g.push('<path d="M'+(pad-18)+' 40 V'+(40+h)+' M'+(pad-24)+' 40 H'+(pad-12)+' M'+(pad-24)+' '+(40+h)+' H'+(pad-12)+'" stroke="#1565C0" stroke-width="1.5" fill="none"/>');
+  g.push('<g transform="translate('+(pad-34)+','+(40+h/2)+') rotate(-90)"><text text-anchor="middle" font-size="13" font-weight="800" fill="#0B2A55" style="'+FS+'">total 0,76 mm</text></g>');
+  g.push('</svg>');
+  el('#xsec').innerHTML=g.join('')+'<p class="cap" style="margin-top:8px">Tebal digambar tidak berskala dengan panjang kartu agar lapisan terbaca. '+srcBadge('Asumsi desain')+'</p>';
+}
+
+/* ---------- ponsel pedagang (Demo Tempel) ---------- */
+function phoneSVG(layar,putar){
+  const isi = layar==='pin'
+    ? '<text x="110" y="120" text-anchor="middle" font-size="15" font-weight="800" fill="#0B2A55" style="'+FS+'">Masukkan PIN</text>'+
+      '<text x="110" y="150" text-anchor="middle" font-size="22" font-weight="800" fill="#0B2A55" style="'+FM+'" letter-spacing="7">'+('•'.repeat(state.demo.pinBuf.length)||'______')+'</text>'+
+      '<text x="110" y="186" text-anchor="middle" font-size="11" fill="#3C5A8A" style="'+FS+'">Layar diputar ke arah Anda</text>'
+    : layar==='hasil'
+    ? '<text x="110" y="104" text-anchor="middle" font-size="13" font-weight="700" fill="#1E7F52" style="'+FS+'">'+(state.demo.hasil&&state.demo.hasil.ok?'Pembayaran diterima':'Ditolak')+'</text>'+
+      '<text x="110" y="136" text-anchor="middle" font-size="20" font-weight="800" fill="#0B2A55" style="'+FS+'">'+esc(rp(state.demo.nominal))+'</text>'+
+      '<text x="110" y="166" text-anchor="middle" font-size="11" fill="#3C5A8A" style="'+FS+'">Sisa saldo kartu '+esc(rp(state.kartu.saldo))+'</text>'
+    : '<text x="110" y="110" text-anchor="middle" font-size="12" font-weight="700" fill="#3C5A8A" style="'+FS+'">Tagihan</text>'+
+      '<text x="110" y="146" text-anchor="middle" font-size="26" font-weight="800" fill="#0B2A55" style="'+FS+'">'+esc(rp(state.demo.nominal))+'</text>'+
+      '<text x="110" y="178" text-anchor="middle" font-size="11" fill="#3C5A8A" style="'+FS+'">Tempelkan kartu di sini</text>';
+  return '<svg width="220" height="400" viewBox="0 0 220 400" style="transform:rotateY('+(putar?180:0)+'deg);transition:transform .4s">'+
+    '<rect x="6" y="6" width="208" height="388" rx="28" fill="#0B2A55"/>'+
+    '<rect x="16" y="26" width="188" height="348" rx="18" fill="#F4FAFF"/>'+
+    '<rect x="86" y="12" width="48" height="8" rx="4" fill="#3C5A8A"/>'+
+    '<g transform="scale(1)">'+isi+'</g>'+
+    '<g transform="translate(110,280)" opacity=".85">'+
+      '<path d="M-18 -16a24 24 0 0 1 0 32" stroke="#1565C0" stroke-width="3" fill="none" stroke-linecap="round"/>'+
+      '<path d="M-4 -10a14 14 0 0 1 0 20" stroke="#42A5F5" stroke-width="3" fill="none" stroke-linecap="round"/>'+
+      '<path d="M8 -5a7 7 0 0 1 0 10" stroke="#90CAF9" stroke-width="3" fill="none" stroke-linecap="round"/></g>'+
+    '<text x="110" y="330" text-anchor="middle" font-size="10.5" fill="#3C5A8A" style="'+FS+'">Ponsel pedagang · QRIS Tap</text>'+
+    '</svg>';
+}
+function renderFx(){
+  const f=el('#fx');
+  if(state.tab!=='demo'||state.demo.step==='siap'&&!state.demo.nominal){ f.innerHTML=''; return; }
+  if(state.tab!=='demo'){ f.innerHTML=''; return; }
+  const putar = state.demo.step==='pin';
+  f.innerHTML='<div style="position:absolute;right:18px;bottom:14px;pointer-events:none">'+phoneSVG(
+      state.demo.step==='pin'?'pin':(state.demo.step==='hasil'?'hasil':'tagihan'),putar)+'</div>'+
+    (state.demo.step==='proses'||state.demo.step==='hasil'
+      ? '<div style="position:absolute;left:50%;top:14px;transform:translateX(-50%);pointer-events:none" class="pill okp">'+
+        'Kartu tanpa baterai: energi diterima dari ponsel pedagang</div>':'');
+}
+/* ================= 10. ACTIONS ================= */
+let anim=null;
+function animateTo(yaw,pitch,ms){
+  const p=state.pose, dy=geom.shortest(p.yaw,yaw), dp=geom.shortest(p.pitch,pitch);
+  if(reduceMotion()||ms===0){ p.yaw+=dy; p.pitch+=dp; return; }
+  const y0=p.yaw, p0=p.pitch, t0=performance.now();
+  anim={y0,p0,dy,dp,t0,ms:ms||700};
+}
+function tickAnim(now){
+  if(!anim) return;
+  const k=clamp((now-anim.t0)/anim.ms,0,1);
+  const e=k<1?(k<0.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2):1; // mirip cubic-bezier(.2,.8,.2,1)
+  state.pose.yaw=anim.y0+anim.dy*e; state.pose.pitch=anim.p0+anim.dp*e;
+  if(k>=1) anim=null;
+}
+const actions={
+  varian(v){ state.varian=v; state.kartu.last4=CONFIG.varian[v].last4; scene.paintFaces(); renderAll(); toast('Varian '+v+' · '+CONFIG.varian[v].nama); },
+  view(v){ const V=CONFIG.views[v]; if(!V) return; state.tampilan=v;
+    const tepi=['kiri','kanan','atas','bawah'].indexOf(v)>=0;
+    actions.zoom(tepi?1.15:(v==='bongkar'?0.6:1));
+    if(v==='bongkar'){ actions.setBongkar(100); }
+    state.sisi = (v==='belakang')?'belakang':'depan';
+    animateTo(V.yaw,V.pitch,700); syncControls(); },
+  setBongkar(v){ state.bongkar=clamp(v,0,100); scene.layout(); syncControls(); },
+  setBongkarManual(v){ state.bongkar=clamp(v,0,100);
+    state.pose.zoom=1-0.4*(state.bongkar/100);
+    scene.layout(); syncControls(); },
+  toggleBongkar(){ const on=state.bongkar<50;
+    if(on){ state.tampilan='bongkar'; animateTo(CONFIG.views.bongkar.yaw,CONFIG.views.bongkar.pitch,700); }
+    const target=on?100:0, from=state.bongkar, t0=performance.now(), ms=reduceMotion()?0:900;
+    const stp=now=>{ const k=ms?clamp((now-t0)/ms,0,1):1; const e=1-Math.pow(1-k,3);
+      actions.setBongkar(from+(target-from)*e);
+      state.pose.zoom=1-0.4*(state.bongkar/100);
+      if(k<1) requestAnimationFrame(stp); };
+    requestAnimationFrame(stp);
+  },
+  tebal(v){ state.tebalSkala=clamp(v,1,12); scene.layout(); syncControls(); },
+  zoom(v){ state.pose.zoom=clamp(v,0.6,2.2); syncControls(); },
+  cahaya(v){ state.cahaya=clamp(v,0,1); syncControls(); },
+  pickComp(id){
+    const c=CONFIG.comps.find(x=>x.id===id); if(!c) return;
+    state.terpilih=id; state.tab='komponen';
+    if(c.face==='belakang'&&Math.abs(geom.shortest(state.pose.yaw,180))>90) actions.view('belakang');
+    else if(c.face==='depan'&&Math.abs(geom.shortest(state.pose.yaw,0))>90) actions.view('tigaempat');
+    else if(c.face==='dalam'&&state.bongkar<50) actions.toggleBongkar();
+    renderAll();
+  },
+  pickLayer(id){ const c=CONFIG.comps.find(x=>x.layer===id)||CONFIG.comps.find(x=>x.id===CONFIG.layers.find(l=>l.id===id).comp);
+    if(c){ actions.pickComp(c.id); } scene.hoverLayer(id,true); setTimeout(()=>scene.hoverLayer(id,false),1400); },
+  toggleLayer(id){ state.layer[id].show=!state.layer[id].show; state.layer.solo=null; scene.layout(); renderAll(); },
+  solo(id){ state.layer.solo = state.layer.solo===id ? null : id; scene.layout(); renderAll();
+    toast(state.layer.solo?('Hanya '+id+' ditampilkan'):'Solo dimatikan'); },
+  layersAll(){ CONFIG.layers.forEach(L=>state.layer[L.id].show=true); state.layer.solo=null; scene.layout(); renderAll(); },
+  soloOff(){ state.layer.solo=null; scene.layout(); renderAll(); },
+  penampang(){ state.penampang=true; el('#xsecPanel').hidden=false; drawXsec(); actions.view('kiri'); syncControls();
+    el('#xsecPanel').scrollIntoView({behavior:reduceMotion()?'auto':'smooth',block:'nearest'}); },
+  penampangTutup(){ state.penampang=false; el('#xsecPanel').hidden=true; syncControls(); },
+  kiri(){ state.ui.panelKiri=!state.ui.panelKiri; syncControls();
+    setTimeout(ukurUlang,80); },
+  baca(){ actions.bacaSisi(state.sisi==='belakang'?'belakang':'depan'); openModal('mdBaca'); },
+  bacaSisi(s){ state.sisi=s; el('#readcard .inner').innerHTML=renderFace(state.varian,s); },
+  tab(t){ state.tab=t; if(t==='demo'){ state.pose.panX=-110; } else if(state.pose.panX===-110){ state.pose.panX=0; }
+    renderTabs(); renderFx(); },
+  reset(){ try{localStorage.removeItem('lentera-pref');}catch(e){}
+    state=stateAwal(); scene.paintFaces(); scene.layout(); renderAll(); renderFx();
+    el('#xsecPanel').hidden=true; toast('Semua pengaturan dikembalikan'); },
+  font(){ const o=[1,1.15,1.3]; state.ui.fontScale=o[(o.indexOf(state.ui.fontScale)+1)%3]; simpanPref(); syncControls(); },
+  hc(){ state.ui.kontrasTinggi=!state.ui.kontrasTinggi; simpanPref(); syncControls(); },
+  /* --- demo tempel --- */
+  nominal(n){ state.demo.nominal=n; state.demo.pesan=''; renderTabs(); renderFx(); },
+  nominalLain(){ const v=parseInt((el('#nomLain').value||'').replace(/\D/g,''),10)||0;
+    state.demo.nominal=v; renderTabs(); renderFx(); },
+  tampilkan(){ if(!(state.demo.nominal>0)) return; state.demo.step='tempel'; state.demo.hasil=null; renderTabs(); renderFx(); },
+  tempel(){
+    const n=state.demo.nominal;
+    el('#card3d').style.transition=reduceMotion()?'none':'transform .8s cubic-bezier(.2,.8,.2,1)';
+    const oldPan=state.pose.panX; state.pose.panX=oldPan+150; scene.applyTransform();
+    setTimeout(()=>{ state.pose.panX=oldPan; el('#card3d').style.transition='';
+      if(n>U.pinAtas){ state.demo.step='pin'; state.demo.pinBuf=''; }
+      else actions.proses(false);
+      renderTabs(); renderFx();
+    }, reduceMotion()?10:820);
+    state.demo.pesan='Koil antena menyala: kartu menadah energi dari ponsel pedagang.';
+    renderTabs(); renderFx();
+  },
+  pinKey(k){ const D=state.demo; if(k==='x') D.pinBuf=D.pinBuf.slice(0,-1);
+    else if(D.pinBuf.length<6) D.pinBuf+=k; renderTabs(); renderFx(); },
+  pinOk(){ if(state.demo.pinBuf.length<6){ toast('PIN enam digit','bad'); return; } actions.proses(true); },
+  pinSalah(){
+    state.pin.sisaCoba-=1;
+    if(state.pin.sisaCoba<=0){ state.pin.kunciSampai=Date.now()+30000; state.pin.sisaCoba=3;
+      state.demo.pesan='PIN terkunci 30 detik. Coba lagi nanti atau hubungi petugas.'; beep(false); toast('PIN terkunci 30 detik','bad');
+      setTimeout(()=>{ renderTabs(); },30200);
+    } else { state.demo.pesan='PIN salah. Sisa percobaan '+state.pin.sisaCoba+'.'; beep(false); }
+    state.demo.pinBuf=''; renderTabs(); renderFx();
+  },
+  proses(pinOk){
+    state.demo.step='proses'; renderTabs(); renderFx();
+    setTimeout(()=>{
+      const r=bayar(state.kartu,{nominal:state.demo.nominal,pinOk:pinOk});
+      if(r.ok){ const err=cekInvarian(r.kartu);
+        if(err.length){ toast('Terjadi ketidakcocokan data simulasi','bad'); console.warn('Invarian gagal:',err);
+          state.demo.step='siap'; renderTabs(); renderFx(); return; }
+        state.kartu=r.kartu; }
+      state.demo.hasil={ok:r.ok,pesan:r.pesan}; state.demo.step='hasil'; state.demo.pesan=''; state.demo.pinBuf='';
+      beep(r.ok); renderTabs(); renderFx(); syncControls();
+    }, reduceMotion()?10:520);
+  },
+  ulangGanda(){
+    const c=state.kartu.counter-1;
+    const r=bayar(state.kartu,{nominal:state.demo.nominal,pinOk:true,ulangCounter:c});
+    state.demo.hasil={ok:false,pesan:r.pesan}; state.demo.step='hasil'; beep(false); renderTabs(); renderFx();
+  },
+  batalDemo(){ state.demo.step='siap'; state.demo.pinBuf=''; state.demo.pesan=''; renderTabs(); renderFx(); },
+  resetDemo(){ state.demo={step:'siap',nominal:0,pesan:'',hasil:null,pinBuf:''}; renderTabs(); renderFx(); },
+  /* --- perjalanan kartu --- */
+  langkah(n){ state.perjalanan.langkah=+n; state.tab='perjalanan'; renderTabs();
+    if(+n===2){ state.tab='perjalanan'; } },
+  aktifkan(){ state.kartu.aktif=!state.kartu.aktif; renderTabs(); syncControls();
+    toast(state.kartu.aktif?'Kartu diaktifkan di agen':'Kartu dijadikan belum aktif'); },
+  darurat(on){ state.kartu.daruratBuka=!!on; renderTabs(); syncControls();
+    toast(on?'Lapis Darurat terbuka (ilustrasi)':'Lapis Darurat terkunci kembali'); },
+  bantuan(){ state.kartu.saldo=Math.min(state.kartu.batas, state.kartu.saldo+500000);
+    renderTabs(); syncControls(); toast('Bantuan '+rp(500000)+' masuk (ilustratif)','ok'); },
+  sinkron(){
+    const n=state.kartu.dipakai.length;
+    state.demo.pesan=n+' transaksi diperiksa · 0 pola kloning · saldo terdaftar '+rp(state.kartu.saldo)+'. Transaksi luring selesai direkonsiliasi.';
+    renderTabs(); toast('Sinkronisasi selesai','ok');
+  },
+  kloning(){
+    state.demo.pesan='Penghitung ganda terdeteksi pada nomor #'+String(Math.max(31,state.kartu.counter-1)).padStart(4,'0')+
+      '. Kartu ditandai "perlu ditinjau" dan dihentikan sementara sampai petugas memeriksa.';
+    renderTabs(); toast('Kartu ditandai perlu ditinjau','bad');
+  },
+  hilang(){ state.kartu.diblokir=!state.kartu.diblokir; renderTabs(); syncControls();
+    toast(state.kartu.diblokir?'Kartu dilaporkan hilang dan diblokir':'Kartu dipulihkan'); },
+  salinSpek(){
+    const d=computeKartu(state.kartu);
+    const t=['Kartu LENTERA — ringkasan spesifikasi (prototipe konseptual, bukan produk resmi Bank Indonesia)',
+      'Ukuran: 85,60 × 53,98 × 0,76 mm (ISO/IEC 7810 ID-1), radius sudut 3,18 mm',
+      'Takik taktil tepi kanan 6,7 × 1,5 mm (asumsi desain)',
+      'Batas saldo '+rp(U.batasSaldo)+' · Lapis Harian hingga '+rp(U.harianMax)+
+        ' · Lapis Darurat hingga '+rp(plafonDarurat())+' · total kantong '+rp(U.kantongTotalMax),
+      'PIN wajib di atas '+rp(U.pinAtas)+'; NIK, saldo, dan PIN tidak dicetak di kartu',
+      'Biaya per kartu '+rp(U.biayaKartu)+' (asumsi model)'].join('\n');
+    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(()=>toast('Ringkasan disalin','ok'),()=>toast('Tidak bisa menyalin','bad'));
+    else toast('Peramban ini tidak mengizinkan salin otomatis','bad');
+  },
+  cetak(){
+    el('#printArea').innerHTML='<h2>Kartu LENTERA — lembar spesifikasi</h2>'+TABS.spesifikasi()+'<h2>Lembar Asumsi</h2>'+TABS.asumsi();
+    // pada versi tertanam (artifact) perintah cetak diabaikan peramban
+    try{ if(typeof window.print==='function') window.print();
+         else toast('Gunakan menu Cetak peramban (Ctrl/Cmd + P)'); }
+    catch(e){ toast('Gunakan menu Cetak peramban (Ctrl/Cmd + P)'); }
+  },
+  drawer(t){ const b=el('#d-'+t); b.classList.toggle('collapsed'); },
+  tutupModal(m){ closeModal(m); },
+  selftest(){ const r=selfTest(); el('#testBody').innerHTML=r.html; openModal('mdTest'); },
+  info(teks){ el('#infoBody').innerHTML='<p>'+esc(teks)+'</p>'; openModal('mdInfo'); }
+};
+function simpanPref(){ try{ localStorage.setItem('lentera-pref',JSON.stringify(
+  {f:state.ui.fontScale,h:state.ui.kontrasTinggi,s:state.suara})); }catch(e){} }
+function muatPref(){ try{ const p=JSON.parse(localStorage.getItem('lentera-pref')||'{}');
+  if(p.f) state.ui.fontScale=p.f; if(p.h) state.ui.kontrasTinggi=!!p.h; if(p.s) state.suara=!!p.s; }catch(e){} }
+/* ================= 11. EVENT & LOOP ================= */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-action]'); if(!t) return;
+  const a=t.dataset.action;
+  switch(a){
+    case 'varian': actions.varian(t.dataset.v); break;
+    case 'view': actions.view(t.dataset.v); break;
+    case 'toggleBongkar': actions.toggleBongkar(); break;
+    case 'penampang': actions.penampang(); break;
+    case 'penampangTutup': actions.penampangTutup(); break;
+    case 'baca': actions.baca(); break;
+    case 'kiri': actions.kiri(); break;
+    case 'bacaSisi': actions.bacaSisi(t.dataset.s); break;
+    case 'tab': actions.tab(t.dataset.t); break;
+    case 'pickComp': actions.pickComp(t.dataset.c); break;
+    case 'pickLayer': actions.pickLayer(t.dataset.l); break;
+    case 'toggleLayer': actions.toggleLayer(t.dataset.l); break;
+    case 'solo': actions.solo(t.dataset.l); break;
+    case 'layersAll': actions.layersAll(); break;
+    case 'soloOff': actions.soloOff(); break;
+    case 'reset': actions.reset(); break;
+    case 'font': actions.font(); break;
+    case 'hc': actions.hc(); break;
+    case 'nominal': actions.nominal(+t.dataset.n); break;
+    case 'nominalLain': actions.nominalLain(); break;
+    case 'tampilkan': actions.tampilkan(); break;
+    case 'tempel': actions.tempel(); break;
+    case 'pinKey': actions.pinKey(t.dataset.k); break;
+    case 'pinOk': actions.pinOk(); break;
+    case 'pinSalah': actions.pinSalah(); break;
+    case 'ulangGanda': actions.ulangGanda(); break;
+    case 'batalDemo': actions.batalDemo(); break;
+    case 'resetDemo': actions.resetDemo(); break;
+    case 'langkah': actions.langkah(t.dataset.l); break;
+    case 'aktifkan': actions.aktifkan(); break;
+    case 'bantuan': actions.bantuan(); break;
+    case 'sinkron': actions.sinkron(); break;
+    case 'kloning': actions.kloning(); break;
+    case 'hilang': actions.hilang(); break;
+    case 'salinSpek': actions.salinSpek(); break;
+    case 'cetak': actions.cetak(); break;
+    case 'drawer': actions.drawer(t.dataset.t); break;
+    case 'tutupModal': closeModal(t.dataset.m); break;
+    case 'selftest': actions.selftest(); break;
+  }
+});
+el('#sBongkar').addEventListener('input',e=>{ state.tampilan='bebas'; actions.setBongkarManual(+e.target.value); });
+el('#sTebal').addEventListener('input',e=>actions.tebal(+e.target.value));
+el('#sZoom').addEventListener('input',e=>actions.zoom(+e.target.value/100));
+el('#sCahaya').addEventListener('input',e=>actions.cahaya(+e.target.value/100));
+el('#cHot').addEventListener('change',e=>{state.hotspot=e.target.checked; syncControls();});
+el('#cDim').addEventListener('change',e=>{state.dimensi=e.target.checked; syncControls();});
+el('#cAuto').addEventListener('change',e=>{ state.auto=e.target.checked && !reduceMotion();
+  if(e.target.checked&&reduceMotion()){ e.target.checked=false; toast('Rotasi otomatis dimatikan karena preferensi gerakan minimal'); } });
+el('#cSuara').addEventListener('change',e=>{state.suara=e.target.checked; simpanPref();});
+
+/* ---- seret, zoom, geser ---- */
+(function(){
+  const st=el('#stage'); let drag=null, vel={y:0,p:0}, pointers=new Map(), pinch0=null;
+  st.addEventListener('pointerdown',e=>{
+    if(e.target.closest('.hs')) return;
+    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pointers.size===1){ st.setPointerCapture(e.pointerId);
+      drag={x:e.clientX,y:e.clientY,x0:e.clientX,y0:e.clientY,moved:false,t:performance.now()};
+      st.classList.add('dragging'); state.auto=false; el('#cAuto').checked=false; anim=null; sembunyikanHint(); }
+    else if(pointers.size===2){ const p=Array.from(pointers.values());
+      pinch0={d:Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y),z:state.pose.zoom,
+              cx:(p[0].x+p[1].x)/2, cy:(p[0].y+p[1].y)/2, px:state.pose.panX, py:state.pose.panY}; drag=null; }
+  });
+  st.addEventListener('pointermove',e=>{
+    if(!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pinch0&&pointers.size===2){
+      const p=Array.from(pointers.values()); const d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);
+      actions.zoom(pinch0.z*d/Math.max(1,pinch0.d));
+      const cx=(p[0].x+p[1].x)/2, cy=(p[0].y+p[1].y)/2;
+      state.pose.panX=pinch0.px+(cx-pinch0.cx); state.pose.panY=pinch0.py+(cy-pinch0.cy);
+      return;
+    }
+    if(!drag) return;
+    const dx=e.clientX-drag.x, dy=e.clientY-drag.y;
+    if(Math.hypot(e.clientX-drag.x0,e.clientY-drag.y0)>5) drag.moved=true;
+    state.pose.yaw+=dx*0.45; state.pose.pitch=clamp(state.pose.pitch-dy*0.45,-90,90);
+    vel.y=dx*0.45; vel.p=-dy*0.45; drag.x=e.clientX; drag.y=e.clientY;
+    state.tampilan='bebas'; el('#viewname').textContent='Tampilan bebas';
+  });
+  function up(e){
+    pointers.delete(e.pointerId); if(pointers.size<2) pinch0=null;
+    if(drag){ if(!drag.moved){ // klik tanpa seret: balik kartu
+        const ke = Math.abs(geom.shortest(state.pose.yaw,0))<90 ? 'belakang':'depan';
+        actions.view(ke); }
+      else if(!reduceMotion()){ inertia=Object.assign({},vel); }
+      drag=null; st.classList.remove('dragging'); }
+  }
+  st.addEventListener('pointerup',up); st.addEventListener('pointercancel',up);
+  st.addEventListener('dblclick',()=>actions.view('depan'));
+  st.addEventListener('wheel',e=>{ e.preventDefault(); actions.zoom(state.pose.zoom*(e.deltaY<0?1.08:0.93)); },{passive:false});
+  st.addEventListener('keydown',e=>{
+    const s=e.shiftKey?1:5; let h=true;
+    switch(e.key){
+      case 'ArrowLeft': state.pose.yaw-=s; break;
+      case 'ArrowRight': state.pose.yaw+=s; break;
+      case 'ArrowUp': state.pose.pitch=clamp(state.pose.pitch-s,-90,90); break;
+      case 'ArrowDown': state.pose.pitch=clamp(state.pose.pitch+s,-90,90); break;
+      case '+': case '=': actions.zoom(state.pose.zoom*1.1); break;
+      case '-': actions.zoom(state.pose.zoom*0.9); break;
+      case ' ': actions.toggleBongkar(); break;
+      case 'r': case 'R': actions.reset(); break;
+      case 'h': case 'H': state.hotspot=!state.hotspot; syncControls(); break;
+      default:
+        if(/^[1-8]$/.test(e.key)) actions.view(CONFIG.viewKeys[+e.key-1]); else h=false;
+    }
+    if(h){ e.preventDefault(); if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].indexOf(e.key)>=0){ state.tampilan='bebas'; syncControls(); } }
+  });
+})();
+let inertia=null;
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ els('.modal.open').forEach(m=>closeModal(m.id));
+    if(state.terpilih){ state.terpilih=null; renderAll(); } }
+  if(e.key==='Tab'){ const m=document.querySelector('.modal.open'); if(!m) return;
+    const f=m.querySelectorAll('button,input,[tabindex]:not([tabindex="-1"])'); if(!f.length) return;
+    const first=f[0], last=f[f.length-1];
+    if(e.shiftKey&&document.activeElement===first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey&&document.activeElement===last){ e.preventDefault(); first.focus(); } }
+});
+function sembunyikanHint(){ const h=el('#hint'); if(!h.hidden){ h.style.opacity='0'; setTimeout(()=>h.hidden=true,320); } }
+el('#stage').addEventListener('pointerdown',sembunyikanHint);
+
+/* loop animasi */
+let running=true, lastT=performance.now(), floatT=0;
+function loop(now){
+  if(running){
+    const dt=Math.min(64,now-lastT); lastT=now;
+    tickAnim(now);
+    if(state.auto&&!reduceMotion()) state.pose.yaw+=12*dt/1000;
+    if(inertia&&!reduceMotion()){
+      state.pose.yaw+=inertia.y; state.pose.pitch=clamp(state.pose.pitch+inertia.p,-90,90);
+      inertia.y*=0.92; inertia.p*=0.92;
+      if(Math.abs(inertia.y)<0.02&&Math.abs(inertia.p)<0.02) inertia=null;
+    }
+    if(!reduceMotion()){ floatT+=dt/1000; el('#world').style.transform='translateY('+(Math.sin(floatT*1.05)*4).toFixed(2)+'px)'; }
+    scene.applyTransform();
+  }
+  requestAnimationFrame(loop);
+}
+document.addEventListener('visibilitychange',()=>{ running=!document.hidden; lastT=performance.now(); });
+let rsT=null;
+function ukurUlang(){ if(!scene.built) return;
+  if(setupSkala()){ scene.build(); scene.buildHotspots(); }
+  scene.layout(); scene.applyTransform(); if(state.penampang) drawXsec(); }
+window.addEventListener('resize',()=>{ clearTimeout(rsT); rsT=setTimeout(ukurUlang,160); });
+
+/* ================= 12. selfTest ================= */
+function selfTest(){
+  const R=[]; const add=(id,nama,ok,ket)=>R.push({id,nama,ok:!!ok,ket:ket||''});
+  const D=CONFIG.dim;
+  // T01
+  const rasio=D.wMm/D.hMm, target=85.6/53.98;
+  add('T01','Muat tanpa error konsol; rasio kartu benar',
+    konsolBersih && Math.abs(rasio-target)/target<0.001 && !!el('#card3d').children.length,
+    'rasio '+rasio.toFixed(4)+' vs '+target.toFixed(4)+'; error konsol: '+errCount);
+  // T02 tujuh pose baku
+  let t2=true, t2k=[];
+  const pasangan={depan:'depan',belakang:'belakang',kiri:'kiri',kanan:'kanan',atas:'atas',bawah:'bawah'};
+  Object.keys(pasangan).forEach(k=>{ const V=CONFIG.views[k];
+    const M=geom.mat(V.yaw,V.pitch); const d=geom.dotView(M,geom.normals[pasangan[k]]);
+    if(d<0.99){ t2=false; t2k.push(k+'='+d.toFixed(3)); } });
+  const M34=geom.mat(CONFIG.views.tigaempat.yaw,CONFIG.views.tigaempat.pitch);
+  const ok34=geom.dotView(M34,geom.normals.depan)>0.7 && geom.dotView(M34,geom.normals.kanan)>0.2 && geom.dotView(M34,geom.normals.atas)>0.1;
+  add('T02','Tujuh tampilan baku menghadap muka yang benar', t2&&ok34, t2k.length?t2k.join(', '):'3/4 menampilkan depan+kanan+atas');
+  // T03 takik
+  const clip=notchClip(); const pts=clip.slice(8,-1).split(',').map(s=>s.trim().split(/\s+/).map(v=>parseFloat(v)));
+  const W=D.wPx,H=D.hPx, nd=D.notchDMm*D.pxPerMm;
+  const adaTakik=pts.some(p=>Math.abs(p[0]-(W-nd))<0.6 && Math.abs(p[1]-H/2)<D.notchHMm*D.pxPerMm/2+1);
+  const kiriBersih=!pts.some(p=>p[0]>0.5&&p[0]<nd+0.5&&Math.abs(p[1]-H/2)<5);
+  const atasBersih=!pts.some(p=>p[1]>0.5&&p[1]<nd+0.5&&Math.abs(p[0]-W/2)<5);
+  add('T03','Takik hanya di tepi kanan, tembus ke dalam', adaTakik&&kiriBersih&&atasBersih,
+    'kedalaman '+nd.toFixed(1)+' px pada x='+(W-nd).toFixed(1));
+  // T04 tebal lapisan
+  const sum=CONFIG.layers.reduce((a,L)=>a+L.mm,0);
+  const g0=jarakAntarLapisan(0), g100=jarakAntarLapisan(100);
+  const naik=g100.every((v,i)=>v>g0[i]) && g100.every(v=>v>0);
+  add('T04','Jumlah tebal L1–L7 = 0,76 mm; celah bongkar naik monoton',
+    Math.abs(sum-0.76)<1e-9 && naik, 'jumlah '+sum.toFixed(2)+' mm; celah 0% '+g0[0].toFixed(2)+' px → 100% '+g100[0].toFixed(2)+' px');
+  // T05 hotspot depan
+  const depan=CONFIG.comps.filter(c=>c.face==='depan');
+  const nomorOk=depan.length===8 && depan.map(c=>c.n).join(',')==='1,2,3,4,5,6,7,8';
+  const Mb=geom.mat(180,0); const sembunyi=geom.dotView(Mb,[0,0,1])<0.1;
+  add('T05','Hotspot depan 8 buah bernomor 1–8 dan tersembunyi dari belakang', nomorOk&&sembunyi,
+    depan.length+' hotspot; dot dari belakang '+geom.dotView(Mb,[0,0,1]).toFixed(2));
+  // T06 varian
+  const svgA=renderFace('A','depan'), svgB=renderFace('B','depan'), svgC=renderFace('C','depan');
+  const varOk = svgA.indexOf('LTR ···· 4821')>=0 && svgB.indexOf('>4821<')>=0 && svgC.indexOf('LTR ···· 0917')>=0;
+  const warnaOk = CONFIG.varian.A.stripe==='#1565C0' && CONFIG.varian.C.stripe==='#F29D38';
+  const teksSemua=[svgA,svgB,svgC,renderFace('A','belakang'),renderFace('B','belakang'),renderFace('C','belakang')].join(' ');
+  const adaNik=/\b\d{16}\b/.test(teksSemua.replace(/[^\d\s]/g,' '));
+  add('T06','Varian A/B/C benar, warna pita benar, tanpa pola 16 digit', varOk&&warnaOk&&!adaNik,
+    varOk?'nomor kartu sesuai':'nomor kartu tidak sesuai');
+  // T07–T11 simulasi berantai
+  let k=JSON.parse(JSON.stringify(stateAwal().kartu)); const log=[];
+  let r=bayar(k,{nominal:45000,pinOk:false});
+  const t7 = r.ok && r.kartu.saldo===805000 && r.kartu.harian===455000 && r.kartu.counter===32 && !cekInvarian(r.kartu).length;
+  add('T07','Bayar Rp45.000 tanpa PIN: saldo 850.000→805.000, harian→455.000, penghitung 31→32', t7,
+    r.ok?('saldo '+rp(r.kartu.saldo)+', harian '+rp(r.kartu.harian)+', #'+r.kartu.counter):r.pesan);
+  if(r.ok) k=r.kartu;
+  // T08
+  const tanpaPin=bayar(k,{nominal:145000,pinOk:false});
+  let pin={sisaCoba:3,kunciSampai:0}; let terkunci=false;
+  for(let i=0;i<3;i++){ pin.sisaCoba-=1; if(pin.sisaCoba<=0){ pin.kunciSampai=Date.now()+30000; terkunci=true; } }
+  const denganPin=bayar(k,{nominal:145000,pinOk:true});
+  add('T08','Rp145.000 butuh PIN; tanpa PIN gagal; 3× salah mengunci 30 detik',
+    !tanpaPin.ok && tanpaPin.alasan==='pin' && terkunci && denganPin.ok,
+    tanpaPin.pesan+' | kunci '+((pin.kunciSampai-Date.now())/1000).toFixed(0)+' dtk');
+  if(denganPin.ok) k=denganPin.kartu;    // harian 310.000, saldo 660.000
+  // T09
+  const tolak450=bayar(k,{nominal:450000,pinOk:true});
+  const kBuka=JSON.parse(JSON.stringify(k)); kBuka.daruratBuka=true;
+  const terima450=bayar(kBuka,{nominal:450000,pinOk:true});
+  const invOk = terima450.ok && cekInvarian(terima450.kartu).length===0;
+  add('T09','Rp450.000 ditolak saat Lapis Darurat terkunci, diterima setelah dibuka, invarian terjaga',
+    !tolak450.ok && /Lapis Darurat/.test(tolak450.pesan) && invOk,
+    tolak450.pesan+' → setelah dibuka: '+(terima450.ok?'diterima, sisa '+rp(terima450.kartu.saldo):'gagal'));
+  if(terima450.ok) k=terima450.kartu;
+  // T10
+  const cLast=k.counter-1;
+  const ulang=bayar(k,{nominal:45000,pinOk:true,ulangCounter:cLast});
+  const klonTeks='Penghitung ganda terdeteksi. Kartu ditandai "perlu ditinjau".';
+  add('T10','Pembayaran ulang dengan penghitung sama ditolak; kloning ditandai tanpa istilah teknis',
+    !ulang.ok && ulang.alasan==='ganda' && !/skor risiko|risk score|anomaly score/i.test(klonTeks), ulang.pesan);
+  // T11
+  const kb=JSON.parse(JSON.stringify(k)); kb.diblokir=true;
+  const setelahBlokir=bayar(kb,{nominal:10000,pinOk:true});
+  add('T11','Kartu hilang: diblokir, pembayaran ditolak, tampilan abu-abu + cap DIBLOKIR',
+    !setelahBlokir.ok && setelahBlokir.alasan==='blokir' && !!el('#blocked'), setelahBlokir.pesan);
+  // T12 kontras
+  const pasang=[['#0B2A55','#FFFFFF'],['#0B2A55','#E3F2FD'],['#0B2A55','#BBDEFB'],['#0B2A55','#90CAF9'],
+    ['#0B2A55','#64B5F6'],['#0B2A55','#42A5F5'],['#FFFFFF','#1565C0'],['#FFFFFF','#0D47A1'],
+    ['#FFFFFF','#0B2A55'],['#8A5200','#FFF3E0'],['#1E7F52','#FFFFFF'],['#B3202A','#FFFFFF'],['#0B2A55','#FFF3E0']];
+  const gagal=pasang.filter(p=>geom.contrast(p[0],p[1])<4.5);
+  const putihDiBiruTerang=[['#FFFFFF','#42A5F5'],['#FFFFFF','#64B5F6'],['#FFFFFF','#90CAF9']]
+    .filter(p=>geom.contrast(p[0],p[1])>=4.5);
+  add('T12','Minimal 13 pasangan warna-teks ≥ 4,5:1; tidak ada teks putih di atas biru terang',
+    gagal.length===0 && putihDiBiruTerang.length===0,
+    gagal.length? ('gagal: '+gagal.map(p=>p.join(' di atas ')).join('; ')) : (pasang.length+' pasangan lulus, rasio terendah '+Math.min.apply(null,pasang.map(p=>geom.contrast(p[0],p[1]))).toFixed(2)+':1'));
+  // T13 kata terlarang
+  const teksUI=(document.body.innerText||'')+' '+teksSemua.replace(/<[^>]+>/g,' ');
+  const larang=['Pending','24/7','100% aman','terjamin','tak bisa dibobol','skor risiko'];
+  const ketemu=larang.filter(w=>new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i').test(teksUI));
+  add('T13','Tidak ada kata terlarang pada teks antarmuka', ketemu.length===0, ketemu.length?('ditemukan: '+ketemu.join(', ')):'bersih');
+  // T14 reduced motion
+  const rm=reduceMotion();
+  add('T14','Hormati preferensi gerakan minimal', rm? (!state.auto && !inertia) : true,
+    rm?'aktif: rotasi otomatis dan inersia dimatikan':'preferensi gerakan minimal tidak aktif di peramban ini');
+  // T15 keyboard
+  const st=el('#stage');
+  add('T15','Panggung bisa difokus dan menerima tombol panah / 1–8 / Esc',
+    st.getAttribute('tabindex')==='0' && st.getAttribute('role')==='application' && CONFIG.viewKeys.length===8,
+    'tabindex 0, role application, 8 tampilan terpetakan ke tombol 1–8');
+  // T16 reset
+  const a=stateAwal();
+  const resetOk = a.pose.zoom===1 && a.bongkar===0 && a.varian==='A' && a.kartu.saldo===850000 &&
+    a.kartu.counter===31 && a.pin.sisaCoba===3 && a.ui.fontScale===1 && a.tebalSkala===6;
+  add('T16','Reset mengembalikan seluruh state ke nilai awal', resetOk, 'pose, varian, bongkar, saldo, penghitung, PIN, preferensi');
+  const lulus=R.filter(x=>x.ok).length;
+  const html='<p><b>'+lulus+' dari '+R.length+' uji lulus.</b> '+
+    (lulus===R.length?'<span class="pill okp">SEMUA LULUS</span>':'<span class="pill dangerp">ADA YANG GAGAL</span>')+'</p>'+
+    '<table class="testtbl"><tbody>'+R.map(x=>'<tr><td><b>'+x.id+'</b></td><td>'+esc(x.nama)+
+      '<br><span class="cap">'+esc(x.ket)+'</span></td><td class="'+(x.ok?'p':'f')+'">'+(x.ok?'LULUS':'GAGAL')+'</td></tr>').join('')+'</tbody></table>';
+  console.table(R.map(x=>({Uji:x.id,Hasil:x.ok?'LULUS':'GAGAL',Keterangan:x.nama})));
+  return {R,html,lulus};
+}
+function jarakAntarLapisan(bongkarPersen){
+  const D=CONFIG.dim,S=D.pxPerMm,sc=state.tebalSkala; let z=D.tMm*sc*S/2; const c=[];
+  const gap=(bongkarPersen/100)*CONFIG.explodeGap, n=CONFIG.layers.length;
+  CONFIG.layers.forEach((L,i)=>{ const tl=L.mm*sc*S; c.push(z-tl/2+((n-1)/2-i)*gap); z-=tl; });
+  const out=[]; for(let i=1;i<c.length;i++) out.push(c[i-1]-c[i]);
+  return out;
+}
+
+/* ================= 13. INIT ================= */
+let errCount=0, konsolBersih=true;
+window.addEventListener('error',()=>{errCount++;konsolBersih=false;});
+window.addEventListener('unhandledrejection',()=>{errCount++;konsolBersih=false;});
+function dukung3D(){
+  const d=document.createElement('div');
+  return 'transformStyle' in d.style || 'webkitTransformStyle' in d.style;
+}
+function init(){
+  muatPref();
+  if(!dukung3D()){
+    el('#stage').innerHTML='<div style="padding:24px"><p><b>Peramban ini tidak mendukung tampilan 3D.</b> '+
+      'Kartu ditampilkan datar. Semua informasi komponen tetap bisa dibaca di panel kanan.</p>'+
+      '<div id="flat2d" style="max-width:520px;margin-top:12px"></div>'+
+      '<div class="ctrow" style="margin-top:10px"><button class="btn sm" data-action="bacaSisi" data-s="depan">Depan</button>'+
+      '<button class="btn sm" data-action="bacaSisi" data-s="belakang">Belakang</button></div></div>';
+    el('#flat2d').innerHTML=renderFace(state.varian,'depan');
+    renderAll(); return;
+  }
+  setupSkala(); scene.build(); scene.buildHotspots(); renderAll(); renderFx();
+  requestAnimationFrame(loop);
+  setTimeout(()=>{ const h=el('#hint'); if(h&&!h.hidden===false){ h.hidden=false; h.style.opacity='1'; } },1200);
+  setTimeout(()=>sembunyikanHint(),6500);
+  setTimeout(()=>{ const r=selfTest();
+    console.log('%cLENTERA selfTest: '+r.lulus+'/'+r.R.length+' lulus','font-weight:bold;color:#1565C0');
+  },400);
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+</script>
+</body>
+</html>
